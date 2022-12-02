@@ -1,20 +1,14 @@
 import os
 import unittest
-from .prod import partA, partB, whoWins
+from .prod import partA, partB, roundScore
 
 class Day2TestCase(unittest.TestCase):
-    def testWhoWins(self):
-        self.assertEqual(whoWins('Rock', 'Paper'), 1)
-        self.assertEqual(whoWins('Rock', 'Rock'), 0)
-        self.assertEqual(whoWins('Rock', 'Scissors'), -1)
-
-        self.assertEqual(whoWins('Paper', 'Paper'), 0)
-        self.assertEqual(whoWins('Paper', 'Rock'), -1)
-        self.assertEqual(whoWins('Paper', 'Scissors'), 1)
-
-        self.assertEqual(whoWins('Scissors', 'Paper'), -1)
-        self.assertEqual(whoWins('Scissors', 'Rock'), 1)
-        self.assertEqual(whoWins('Scissors', 'Scissors'), 0)
+    def testRoundscore(self):
+        self.assertEqual(roundScore('Rock', 'Rock'), 4)
+        self.assertEqual(roundScore('Paper', 'Rock'), 1)
+        self.assertEqual(roundScore('Scissors', 'Rock'), 7)
+        self.assertEqual(roundScore('Rock', 'Scissors'), 3)
+        self.assertEqual(roundScore('Scissors', 'Scissors'), 6)
 
     def testPartA(self):
         self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 15)

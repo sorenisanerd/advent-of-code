@@ -1,7 +1,7 @@
-handScore = dict()
-handScore['Rock'] = 1
-handScore['Paper'] = 2
-handScore['Scissors'] = 3
+handScoreMap = dict()
+handScoreMap['Rock'] = 1
+handScoreMap['Paper'] = 2
+handScoreMap['Scissors'] = 3
 outcomeScore = dict()
 outcomeScore['Lose'] = 0
 outcomeScore['Draw'] = 3
@@ -18,35 +18,33 @@ def partA(filename: str) -> int:
     myMoveMap['Y'] = 'Paper'
     myMoveMap['Z'] = 'Scissors'
 
-    data = getData(filename)
     score = 0
     for (them, me) in data:
         theirMove = theirMoveMap[them]
         myMove = myMoveMap[me]
-        # print('They play %s, so I play %s' % (theirMove, myMove))
 
-        winner = whoWins(theirMove, myMove)
-        outcomeMap = dict()
-        outcomeMap[-1] = 'Lose'
-        outcomeMap[0] = 'Draw'
-        outcomeMap[1] = 'Win'
-
-        # print('I %s' % (outcomeMap[winner]))
-        score += outcomeScore[outcomeMap[winner]] + handScore[myMoveMap[me]]
+        score += roundScore(theirMove, myMove)
 
     return score
 
-def whoWins(a: str, b:str) -> int:
-    if a == b:
-        return 0
+valid_move = ['Rock', 'Paper', 'Scissors']
 
-    if a == 'Rock':
-        return b == 'Paper' and 1 or -1
-    if a == 'Paper':
-        return b == 'Scissors' and 1 or -1
+def roundScore(theirMove: str, myMove:str) -> int:
+    assert theirMove in valid_move
+    assert myMove in valid_move
 
-    # So a must be 'Scissors'
-    return b == 'Rock' and 1 or -1
+    if theirMove == myMove:
+        outcomeScore = 3 # Draw
+    elif theirMove == 'Rock':
+        outcomeScore = myMove == 'Paper' and 6 or 0
+    elif theirMove == 'Paper':
+        outcomeScore = myMove == 'Scissors' and 6 or 0
+    else:
+        outcomeScore = myMove == 'Rock' and 6 or 0
+
+    handScore = handScoreMap[myMove]
+
+    return outcomeScore + handScore
 
 def partB(filename: str) -> int:
     data = getData(filename)
@@ -54,6 +52,9 @@ def partB(filename: str) -> int:
     theirMoveMap['A'] = 'Rock'
     theirMoveMap['B'] = 'Paper'
     theirMoveMap['C'] = 'Scissors'
+
+    # Given their move and our desired outcome (X -> Lose, Y -> Draw, Z -> Win)
+    # calculate our move
     myMoveMap = dict()
     myMoveMap['Rock'] = dict()
     myMoveMap['Paper'] = dict()
@@ -71,13 +72,9 @@ def partB(filename: str) -> int:
     data = getData(filename)
     score = 0
     for (them, outcome) in data:
-        me = myMoveMap[theirMoveMap[them]][outcome]
-
-        e = dict()
-        e['X'] = 'Lose'
-        e['Y'] = 'Draw'
-        e['Z'] = 'Win'
-        score += outcomeScore[e[outcome]] + handScore[me]
+        theirMove = theirMoveMap[them]
+        myMove = myMoveMap[theirMove][outcome]
+        score += roundScore(theirMove, myMove)
 
     return score
 
