@@ -1,32 +1,38 @@
+handScore = dict()
+handScore['Rock'] = 1
+handScore['Paper'] = 2
+handScore['Scissors'] = 3
+outcomeScore = dict()
+outcomeScore['Lose'] = 0
+outcomeScore['Draw'] = 3
+outcomeScore['Win'] = 6
+
 def partA(filename: str) -> int:
     data = getData(filename)
-    a = dict()
-    a['A'] = 'Rock'
-    a['B'] = 'Paper'
-    a['C'] = 'Scissors'
-    b = dict()
-    b['X'] = 'Rock'
-    b['Y'] = 'Paper'
-    b['Z'] = 'Scissors'
-    c = dict()
-    c['Rock'] = 1
-    c['Paper'] = 2
-    c['Scissors'] = 3
-    d = dict()
-    d['Lose'] = 0
-    d['Draw'] = 3
-    d['Win'] = 6
+    theirMoveMap = dict()
+    theirMoveMap['A'] = 'Rock'
+    theirMoveMap['B'] = 'Paper'
+    theirMoveMap['C'] = 'Scissors'
+    myMoveMap = dict()
+    myMoveMap['X'] = 'Rock'
+    myMoveMap['Y'] = 'Paper'
+    myMoveMap['Z'] = 'Scissors'
 
     data = getData(filename)
     score = 0
     for (them, me) in data:
-        winner = whoWins(a[them], b[me])
-        e = dict()
-        e[-1] = 'Lose'
-        e[0] = 'Draw'
-        e[1] = 'Win'
+        theirMove = theirMoveMap[them]
+        myMove = myMoveMap[me]
+        # print('They play %s, so I play %s' % (theirMove, myMove))
 
-        score += d[e[winner]] + c[b[me]]
+        winner = whoWins(theirMove, myMove)
+        outcomeMap = dict()
+        outcomeMap[-1] = 'Lose'
+        outcomeMap[0] = 'Draw'
+        outcomeMap[1] = 'Win'
+
+        # print('I %s' % (outcomeMap[winner]))
+        score += outcomeScore[outcomeMap[winner]] + handScore[myMoveMap[me]]
 
     return score
 
@@ -38,51 +44,42 @@ def whoWins(a: str, b:str) -> int:
         return b == 'Paper' and 1 or -1
     if a == 'Paper':
         return b == 'Scissors' and 1 or -1
-    # So it must be 'Scissors'
+
+    # So a must be 'Scissors'
     return b == 'Rock' and 1 or -1
 
 def partB(filename: str) -> int:
     data = getData(filename)
-    a = dict()
-    a['A'] = 'Rock'
-    a['B'] = 'Paper'
-    a['C'] = 'Scissors'
-    b = dict()
-    b['Rock'] = dict()
-    b['Paper'] = dict()
-    b['Scissors'] = dict()
-    b['Rock']['X'] = 'Scissors'
-    b['Rock']['Y'] = 'Rock'
-    b['Rock']['Z'] = 'Paper'
-    b['Paper']['X'] = 'Rock'
-    b['Paper']['Y'] = 'Paper'
-    b['Paper']['Z'] = 'Scissors'
-    b['Scissors']['X'] = 'Paper'
-    b['Scissors']['Y'] = 'Scissors'
-    b['Scissors']['Z'] = 'Rock'
-    c = dict()
-    c['Rock'] = 1
-    c['Paper'] = 2
-    c['Scissors'] = 3
-    d = dict()
-    d['Lose'] = 0
-    d['Draw'] = 3
-    d['Win'] = 6
+    theirMoveMap = dict()
+    theirMoveMap['A'] = 'Rock'
+    theirMoveMap['B'] = 'Paper'
+    theirMoveMap['C'] = 'Scissors'
+    myMoveMap = dict()
+    myMoveMap['Rock'] = dict()
+    myMoveMap['Paper'] = dict()
+    myMoveMap['Scissors'] = dict()
+    myMoveMap['Rock']['X'] = 'Scissors'
+    myMoveMap['Rock']['Y'] = 'Rock'
+    myMoveMap['Rock']['Z'] = 'Paper'
+    myMoveMap['Paper']['X'] = 'Rock'
+    myMoveMap['Paper']['Y'] = 'Paper'
+    myMoveMap['Paper']['Z'] = 'Scissors'
+    myMoveMap['Scissors']['X'] = 'Paper'
+    myMoveMap['Scissors']['Y'] = 'Scissors'
+    myMoveMap['Scissors']['Z'] = 'Rock'
 
     data = getData(filename)
     score = 0
     for (them, outcome) in data:
-        me = b[a[them]][outcome]
+        me = myMoveMap[theirMoveMap[them]][outcome]
 
         e = dict()
         e['X'] = 'Lose'
         e['Y'] = 'Draw'
         e['Z'] = 'Win'
-        score += d[e[outcome]] + c[me]
+        score += outcomeScore[e[outcome]] + handScore[me]
 
     return score
-
-
 
 def getData(filename: str) -> list:
     rv = []

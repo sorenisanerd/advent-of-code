@@ -7,9 +7,11 @@ class Day2TestCase(unittest.TestCase):
         self.assertEqual(whoWins('Rock', 'Paper'), 1)
         self.assertEqual(whoWins('Rock', 'Rock'), 0)
         self.assertEqual(whoWins('Rock', 'Scissors'), -1)
+
         self.assertEqual(whoWins('Paper', 'Paper'), 0)
         self.assertEqual(whoWins('Paper', 'Rock'), -1)
         self.assertEqual(whoWins('Paper', 'Scissors'), 1)
+
         self.assertEqual(whoWins('Scissors', 'Paper'), -1)
         self.assertEqual(whoWins('Scissors', 'Rock'), 1)
         self.assertEqual(whoWins('Scissors', 'Scissors'), 0)
