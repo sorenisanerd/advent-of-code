@@ -1,25 +1,18 @@
 def partA(filename: str) -> int:
-    sums = getSums(filename)
-    return max(sums)
+    lines = getLines(filename)
+    return 0
 
 def partB(filename: str) -> int:
-    sums = getSums(filename)
-    sums = sorted(sums)
-    return sum(sums[-3:])
+    lines = getLines(filename)
+    return 0
 
-def getSums(filename: str) -> list:
+def getLines(filename: str) -> list:
+    lines = []
     with open(filename) as f:
-        sums = []
-        sum = 0
         for l in f:
             l = l.strip()
-            if l == '':
-                sums.append(sum)
-                sum = 0
-                continue
-            sum += int(l)
-        sums.append(sum)
-    return sums
+            lines += [l]
+    return lines
 
 if __name__ == '__main__':
     import os.path

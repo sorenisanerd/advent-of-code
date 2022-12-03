@@ -1,10 +1,9 @@
+import string
+
 def getScore(s: str) -> int:
     assert len(s) == 1
-    v = ord(s)
-    if ord('a') <= v <= ord('z'):
-        return v-ord('a')+1
-    if ord('A') <= v <= ord('Z'):
-        return v-ord('A')+27
+    assert s in string.ascii_letters
+    return string.ascii_letters.find(s)+1
 
 def partA(filename: str) -> int:
     lines = getData(filename)
@@ -21,11 +20,9 @@ def partB(filename: str) -> int:
     score = 0
     x = 0
     while x < len(lines):
-        l1 = lines[x]
-        l2 = lines[x+1]
-        l3 = lines[x+2]
+        l1, l2, l3 = lines[x:x+3]
         x += 3
-        whoopsie = set(l1).intersection(set(l2)).intersection(set(l3)).pop()
+        whoopsie = set(l1).intersection(l2).intersection(l3).pop()
         score += getScore(whoopsie)
     return score
 

@@ -1,6 +1,6 @@
 import os
 import unittest
-from .prod import partA, partB
+from .prod import partA, partB, getScore
 
 class Day3TestCase(unittest.TestCase):
     def testPartA(self):

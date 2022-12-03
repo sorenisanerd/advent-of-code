@@ -8,4 +8,4 @@ cd day$day/golang
 go mod init github.com/sorenisanerd/adventofcode2022/day$day
 cd -
 
-cp -r tmpl/* day$day/
+cp -r template/* day$day/
