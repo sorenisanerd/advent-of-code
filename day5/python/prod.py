@@ -42,7 +42,7 @@ def parseFile(filename):
     return moveLines,stacks
 
 def parseStacks(beforeLines):
-    numbers = list(map(lambda x:int(x), filter(lambda s:len(s.strip())>0, re.split(r'(\d+)', beforeLines[-1]))))
+    numbers = list(map(lambda x:int(x), filter(lambda s:len(s.strip())>0, re.split(r'\s+', beforeLines[-1]))))
     number_of_stacks = numbers[-1]
     stacks = []
     i = 0
@@ -71,8 +71,7 @@ def partB(filename: str) -> int:
 
     for l in moveLines:
         matches = re.match('move (\d+) from (\d+) to (\d+)', l)
-        count, from_stack, to_stack = matches.groups()
-        count, from_stack, to_stack = int(count), int(from_stack), int(to_stack)
+        count, from_stack, to_stack = list(map(int, matches.groups()))
         stacks = move(stacks, count, from_stack, to_stack)
 
     return ''.join([s[-1] for s in stacks])
