@@ -10,7 +10,7 @@ def getLines(filename: str) -> list:
     lines = []
     with open(filename) as f:
         for l in f:
-            l = l.strip()
+            l = l.rstrip('\n')
             lines += [l]
     return lines
 
