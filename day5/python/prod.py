@@ -42,7 +42,8 @@ def parseFile(filename):
     return moveLines,stacks
 
 def parseStacks(beforeLines):
-    numbers = list(map(lambda x:int(x), filter(lambda s:len(s.strip())>0, re.split(r'\s+', beforeLines[-1]))))
+    numbers = list(map(lambda x:int(x),
+                   filter(lambda s:len(s.strip())>0, re.split(r'\s+', beforeLines[-1]))))
     number_of_stacks = numbers[-1]
     stacks = []
     i = 0
