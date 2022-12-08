@@ -18,10 +18,10 @@ class Directory(object):
             total += self.files[file]
         return total
 
-    def visit_subdirectories(self, func):
+    def walk_subdirectories(self, func):
         func(self)
         for d in self.subdirectories:
-            self.subdirectories[d].visit_subdirectories(func)
+            self.subdirectories[d].walk_subdirectories(func)
 
 
 def parseDirectoryStructure(lines: list) -> Directory:
@@ -74,7 +74,7 @@ def partA(filename: str) -> int:
         if total < 100000:
             total_size_of_directories_under_100000 += total
 
-    root.visit_subdirectories(f)
+    root.walk_subdirectories(f)
     return total_size_of_directories_under_100000
 
 
@@ -91,17 +91,12 @@ def partB(filename: str) -> int:
         total = d.total()
         dirsizes += [total]
 
-    root.visit_subdirectories(f)
-
-    total_capacity = 70000000
-    used_capacity = root.total()
-    available_capacity = total_capacity - used_capacity
-    required_capacity = 30000000
-    needed_additional_capacity = required_capacity - available_capacity
+    root.walk_subdirectories(f)
     dirsizes = sorted(dirsizes)
 
+    used_capacity = root.total()
     for x in dirsizes:
-        if x > needed_additional_capacity:
+        if x > used_capacity-40000000:
             return x
 
     return -1
