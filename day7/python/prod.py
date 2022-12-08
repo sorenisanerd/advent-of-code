@@ -66,7 +66,7 @@ def partA(filename: str) -> int:
     parseDirectoryStructure(lines)
     curdir = root
 
-    global tota_size_of_directories_under_100000
+    global total_size_of_directories_under_100000
 
     def f(d):
         global total_size_of_directories_under_100000
