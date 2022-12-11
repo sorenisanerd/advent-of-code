@@ -18,7 +18,7 @@ def partA(filename: str) -> int:
                 visible.add((x, y))
                 z = val
 
-    for y in range(len(lines)-1, -1, -1):
+    for y in range(len(lines)):
         z = -1
         for x in range(len(lines[0])):
             val = int(lines[y][x])
@@ -39,7 +39,7 @@ def partA(filename: str) -> int:
 def partB(filename: str) -> int:
     lines = getLines(filename)
 
-    def consider(lines, start_x, start_y):
+    def calculateScenicScore(lines, start_x, start_y):
         start_value = int(lines[start_y][start_x])
         rv = 1
 
@@ -79,7 +79,7 @@ def partB(filename: str) -> int:
     rv = 0
     for y in range(len(lines)):
         for x in range(len(lines[0])):
-            rv = max(rv, consider(lines, x, y))
+            rv = max(rv, calculateScenicScore(lines, x, y))
 
     return rv
 
