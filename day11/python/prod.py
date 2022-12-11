@@ -15,6 +15,7 @@ class Monkey(object):
 
 def partA(filename: str, rounds=20, worryDecrease=3) -> int:
     lines = getLines(filename)
+
     operation = None
     items = []
     ifTrue = None
@@ -27,7 +28,6 @@ def partA(filename: str, rounds=20, worryDecrease=3) -> int:
             items = l[len('  Starting items: '):].split(', ')
             items = list(map(int, items))
         elif l.startswith('  Operation: '):
-            org_op = l
             op = l.split(': ')[-1]
             assert op.startswith('new = ')
             _, op, arg2 = op.split(' = ')[-1].split(' ')
@@ -50,7 +50,6 @@ def partA(filename: str, rounds=20, worryDecrease=3) -> int:
             ifFalse = int(l.split(' ')[-1])
         elif l == '':
             m = Monkey(divisibleBy, operation, ifTrue, ifFalse)
-            m.org_op = org_op
             m.items = items
             monkeys += [m]
             items = []
@@ -73,10 +72,10 @@ def partA(filename: str, rounds=20, worryDecrease=3) -> int:
 
     m = 1
     for n in monkeys:
-        m *= n.divisible_by
+       m *= n.divisible_by
 
     for r in range(rounds):
-        round(monkeys, modulo=m)
+        round(monkeys) #, modulo=m)
 
     ordered = sorted(monkeys, key=lambda x: x.numOfInspections)
     m1, m2 = ordered[-2:]
