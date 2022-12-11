@@ -1,23 +1,11 @@
 class Monkey(object):
-    def __init__(self, divisibly_by, multby, addto, square, ifTrue, ifFalse):
+    def __init__(self, divisibly_by, operation, ifTrue, ifFalse):
         self.divisible_by = divisibly_by
-        self.multby = multby
-        self.addto = addto
-        self.square = square
+        self.operation = operation
         self.ifTrue = ifTrue
         self.ifFalse = ifFalse
         self.items = []
         self.numOfInspections = 0
-
-    def operation(self, x):
-        if self.addto > 0:
-            return x + self.addto
-        elif self.multby != 1:
-            return x * self.multby
-        elif self.square:
-            return x * x
-        else:
-            assert False
 
     def test(self, x):
         return x % self.divisible_by == 0
@@ -31,9 +19,6 @@ def partA(filename: str, rounds=20, worryDecrease=3) -> int:
     items = []
     ifTrue = None
     ifFalse = None
-    multby = 1
-    addto = 0
-    square = False
     monkeys = []
     for l in lines:
         if l.startswith('Monkey'):
@@ -49,14 +34,14 @@ def partA(filename: str, rounds=20, worryDecrease=3) -> int:
 
             if op == '+':
                 if arg2 == 'old':
-                    multby = 2
+                    operation = lambda x: x + x
                 else:
-                    addto = int(arg2)
+                    operation = lambda x, arg=int(arg2): x + arg
             elif op == '*':
                 if arg2 == 'old':
-                    square = True
+                    operation = lambda x: x * x
                 else:
-                    multby = int(arg2)
+                    operation = lambda x, arg=int(arg2): x * arg
         elif l.startswith('  Test: '):
             divisibleBy = int(l.split(' ')[-1])
         elif l.startswith('    If true: '):
@@ -64,28 +49,20 @@ def partA(filename: str, rounds=20, worryDecrease=3) -> int:
         elif l.startswith('    If false: '):
             ifFalse = int(l.split(' ')[-1])
         elif l == '':
-            m = Monkey(divisibleBy, multby, addto, square, ifTrue, ifFalse)
+            m = Monkey(divisibleBy, operation, ifTrue, ifFalse)
             m.org_op = org_op
             m.items = items
             monkeys += [m]
             items = []
             ifTrue = None
             ifFalse = None
-            multby = 1
-            addto = 0
-            square = False
-
-    import time
-    global x
-    x = time.time()
 
     def round(monkeys, modulo=1e9999):
-        global x
         for m in range(len(monkeys)):
             monkey = monkeys[m]
             while monkey.items:
                 monkey.numOfInspections += 1
-                item = monkey.items.pop()
+                item = monkey.items.pop(0)
                 item = monkey.operation(item)
                 item //= worryDecrease
                 item = item % modulo
