@@ -27,8 +27,10 @@ def isWithinBounds(lines, x, y):
 def dijkstra(lines, starts, end):
     from queue import PriorityQueue
     q = PriorityQueue()
+
     for s in starts:
         q.put((0, s))
+
     visited = set()
     while not q.empty():
         cost, (x, y) = q.get()
@@ -44,7 +46,7 @@ def dijkstra(lines, starts, end):
             if isWithinBounds(lines, nx, ny):
                 if isMoveValid(lines, x, y, nx, ny):
                     q.put((cost+1, (nx, ny)))
-    return 1e10
+    assert False
 
 def partA(filename: str) -> int:
     lines = getLines(filename)
@@ -60,7 +62,7 @@ def partB(filename: str) -> int:
     starts = []
     for x in range(len(lines[0])):
         for y in range(len(lines)):
-            if lines[y][x] == 'a':
+            if lines[y][x] in ['a', 'S']:
                 starts += [(x, y)]
     return dijkstra(lines, starts, end)
 
