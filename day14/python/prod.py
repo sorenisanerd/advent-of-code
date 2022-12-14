@@ -38,7 +38,7 @@ def getCavemap(lines):
     walls = []
     for l in lines:
         points = map(lambda s:s.strip(), l.split(' -> '))
-        points = map(lambda s:tuple(s.split(',')), points)
+        points = map(lambda s:s.split(','), points)
         points = map(lambda x:(int(x[0]), int(x[1])), points)
         walls += [list(points)]
 
@@ -60,11 +60,11 @@ def getCavemap(lines):
         start = wall[0]
         for end in wall[1:]:
             if start[0] == end[0]:
-                d = -(start[1] - end[1]) // abs(start[1] - end[1])
+                d = (end[1] - start[1]) // abs(start[1] - end[1])
                 for y in range(start[1], end[1] + d, d):
                     cavemap[y][start[0]] = '#'
             elif start[1] == end[1]:
-                d = -(start[0] - end[0]) // abs(start[0] - end[0])
+                d = (end[0] - start[0]) // abs(start[0] - end[0])
                 for x in range(start[0], end[0] + d, d):
                     cavemap[start[1]][x] = '#'
             start = end
@@ -96,7 +96,7 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-#    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
+    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-#    print(partB(os.path.dirname(__file__) + '/../data/sample.txt'))
+    print(partB(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partB(os.path.dirname(__file__) + '/../data/input.txt'))
