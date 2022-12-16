@@ -1,70 +1,97 @@
 import re
-def partA(filename: str, target_row=20) -> int:
+import time
+
+
+global latest
+latest = None
+def printTS(s, start=time.time()):
+    global latest
+    if latest is None:
+        latest = start
+    now = time.time()
+    rv = now - latest
+    print(s, rv)
+    latest = now
+    return rv
+
+def dist(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
+
+def partA(filename: str, target_row) -> int:
     lines = getLines(filename)
-    pattern = re.compile('Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)')
-    pairs = []
-    for l in lines:
-        sx, sy, bx, by = list(map(int, pattern.match(l).groups()))
-        pairs += [(sx, sy, bx, by)]
+    pairs, B = parseLines(lines)
 
     cols = set()
     for pair in pairs:
-        sx, sy, bx, by = pair
-        distance = abs(sx - bx) + abs(sy - by)
+        sx, sy, bx, by, distance = pair
         radius = distance - abs(target_row - sy)
-        for x in range(sx-radius, sx+radius):
-            cols.add(x)
+        if radius > 0:
+            for x in range(sx-radius, sx+radius+1):
+                if (x, target_row) not in B:
+                    cols.add(x)
 
     return len(cols)
 
-def partB(filename: str, minx, miny, maxx, maxy) -> int:
-    lines = getLines(filename)
-    pattern = re.compile('Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)')
+def parseLines(lines):
     pairs = []
+    B = set()
+    pattern = re.compile('Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)')
     for l in lines:
         sx, sy, bx, by = list(map(int, pattern.match(l).groups()))
-        pairs += [(sx, sy, bx, by)]
+        B.add((bx, by))
+        d = dist(sx, sy, bx, by)
+        pairs += [(sx, sy, bx, by, d)]
+    return pairs,B
 
-    def within_same_distance(sx, sy, bx, by, cx, cy):
-        return abs(sx - bx) + abs(sy - by) >= abs(sx - cx) + abs(sy - cy)
+def followEdge(sx, sy, bx, by):
+    dist = abs(sx - bx) + abs(sy - by)
+    # Start right beyond the the left corner...
+    x, y = sx-dist-1, sy
+    # and go down and to the right
+    while x < sx:
+        yield x, y
+        x += 1
+        y += 1
+    # then go up and to the right
+    while y > sy:
+        yield x, y
+        x += 1
+        y -= 1
+    # then up and to the left
+    while x > sx:
+        yield x, y
+        x -= 1
+        y -= 1
+    # then down and to the left
+    while y < sy:
+        yield x, y
+        x -= 1
+        y += 1
+    # We should be back where we started
+    assert (x, y) == (sx-dist-1, sy)
 
-    def isCovered(x, y):
+
+def partB(filename: str, minx, miny, maxx, maxy) -> int:
+    printTS('a')
+    lines = getLines(filename)
+    pairs, _ = parseLines(lines)
+    printTS('b')
+
+    def isCovered(x, y, pairs=pairs):
         for pair in pairs:
-            sx, sy, bx, by = pair
-            if within_same_distance(sx, sy, bx, by, x, y):
+            sx, sy, _, _, d = pair
+            if dist(sx, sy, x, y) <= d:
                 return True
         return False
 
-    for target_row in range(miny, maxy+1):
-        spans = []
-        for pair in pairs:
-            sx, sy, bx, by = pair
-            distance = abs(sx - bx) + abs(sy - by)
-            radius = distance - abs(target_row - sy)
-            if radius < 0:
-                continue
-            spans += [(max(minx, sx-radius), min(maxx, sx+radius))]
+    for pair in pairs:
+        printTS(pair)
+        for (x, y) in followEdge(*pair[:-1]):
+            if minx <= x <= maxx and miny <= y <= maxy:
+                if not isCovered(x, y):
+                    return x*4000000+y
 
-        start_ordered_taken_spans = sorted(spans, key=lambda x:x[0])
-        x = minx
-        for (x1, x2) in start_ordered_taken_spans:
-            if x < x1:
-                return target_row+x*4000000
-            x = max(x, x2+1)
-        if x <= maxx:
-            return target_row+x*4000000
-
-    return 0
-
-    for x in range(minx, maxx+1):
-        for y in range(miny, maxy+1):
-            if x == 14 and y == 11:
-                print('here')
-            if isCovered(x, y):
-                continue
-            return x*4000000+y
-
-    return 0
+    assert False
 
 def getLines(filename: str) -> list:
     lines = []
@@ -76,7 +103,7 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-#    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
-#    print(partA(os.path.dirname(__file__) + '/../data/input.txt', 2000000))
+    print(partA(os.path.dirname(__file__) + '/../data/sample.txt', 10))
+    print(partA(os.path.dirname(__file__) + '/../data/input.txt', 2000000))
     print(partB(os.path.dirname(__file__) + '/../data/sample.txt', 0, 0, 20, 20))
     print(partB(os.path.dirname(__file__) + '/../data/input.txt', 0, 0, 4000000, 4000000))
