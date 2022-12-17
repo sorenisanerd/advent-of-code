@@ -1,6 +1,5 @@
 import re
 
-rega = re.compile('Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (.*)')
 
 # Takes a list and returns a generator returning
 # 2-tuples like so:
@@ -13,6 +12,7 @@ rega = re.compile('Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (
 def choose_one(l):
     for i in range(len(l)):
         yield (l[i], l[:i] + l[i+1:])
+
 
 def floyd_warshall(V):
     # Initialize the distance matrix
@@ -39,20 +39,18 @@ def floyd_warshall(V):
     return dist
 
 cache1 = dict()
-def dfs(V, distances, cur, rest, time_remaining=30):
+def _dfs(V, distances, cur, rest, time_remaining=30):
     key = (cur, tuple(rest), time_remaining)
     if key not in cache1:
         cache1[key] = dfs_(V, distances, cur, rest, time_remaining)
     return cache1[key]
 
-def dfs_(V, distances, cur, rest, time_remaining=30):
+def dfs(V, distances, cur, rest, time_remaining=30):
     if time_remaining == 0:
         return 0
 
     rv = 0
     for (next, new_rest) in choose_one(rest):
-        if next is None:
-            continue
         if distances[cur][next] < time_remaining:
             contribution = V[next][0] * (time_remaining - distances[cur][next] - 1)
             rv = max(rv, contribution + dfs(V, distances, next, new_rest, time_remaining - distances[cur][next] - 1))
@@ -60,13 +58,13 @@ def dfs_(V, distances, cur, rest, time_remaining=30):
     return rv
 
 cache2 = dict()
-def dfs2(V, distances, cur, rest, time_remaining=30):
+def _dfs2(V, distances, cur, rest, time_remaining=30):
     key = (cur, tuple(rest), time_remaining)
     if key not in cache2:
         cache2[key] = dfs2_(V, distances, cur, rest, time_remaining)
     return cache2[key]
 
-def dfs2_(V, distances, cur, rest, time_remaining=26):
+def dfs2(V, distances, cur, rest, time_remaining=26):
     if time_remaining == 0:
         return dfs(V, distances, 'AA', rest, 26)
 
@@ -88,33 +86,27 @@ def dfs2_(V, distances, cur, rest, time_remaining=26):
 def partA(filename: str, start_time=30) -> int:
     lines = getLines(filename)
 
-    V = dict()
-    for l in lines:
-        match = rega.match(l)
-        if match is None:
-            print(l)
-
-        groups = match.groups()
-        name, rate, tunnels = groups
-        V[name] = (int(rate), tunnels.split(', '))
+    V = parseLines(lines)
 
     distances = floyd_warshall(V)
     return dfs(V, distances, 'AA', list(filter(lambda v:V[v][0] > 0, V.keys())), start_time)
 
+rega = re.compile('Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (.*)')
 
-def partB(filename: str) -> int:
-    lines = getLines(filename)
-
+def parseLines(lines):
     V = dict()
     for l in lines:
         match = rega.match(l)
-        if match is None:
-            assert False
-
+        assert match
         groups = match.groups()
         name, rate, tunnels = groups
         V[name] = (int(rate), tunnels.split(', '))
+    return V
 
+
+def partB(filename: str) -> int:
+    lines = getLines(filename)
+    V = parseLines(lines)
     distances = floyd_warshall(V)
     return dfs2(V, distances, 'AA', list(filter(lambda v:V[v][0] > 0, V.keys())), 26)
 
