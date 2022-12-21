@@ -7,10 +7,10 @@ except ImportError:
 
 class Day1TestCase(unittest.TestCase):
     def testPartA(self):
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 0)
+        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 152)
 
     def testPartB(self):
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 0)
+        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 301)
 
 if __name__ == '__main__':
     unittest.main()

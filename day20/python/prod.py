@@ -1,7 +1,7 @@
 def shift(current_order, elem):
     curidx = current_order.index(elem)
-    # Works for positive shifts
     newidx = (curidx + elem[1]) % (len(current_order)-1)
+
     # If we're going backwards, we can't land on index 0,
     # but rather end at the end
     if newidx == 0:
