@@ -57,12 +57,6 @@ def buildTranslationMap(M, cubeSize):
                 if isCornerConcave(regions, *edge1, *edge2):
                     concaveCorners.add(tuple(sorted([edge1, edge2], key=lambda x:x[2])))
 
-    def isPartOfConcaveCorner(x, y, dir, concaveCorners=concaveCorners):
-        for corner in concaveCorners:
-            if (x, y, dir) in corner:
-                return True
-        return False
-
     def getRegionAndDirectionOfOuterEdge(x, y, dir, regions=regions):
         r = set([(x, y), (x+dir[0], y+dir[1])]).intersection(regions)
         assert len(r) == 1
@@ -136,9 +130,6 @@ def moveOnCube(M, x, y, dir, translationMap, cubeSize, regions):
         newX, newY = ry, rx
         if dir[0]+dir[1]+newDir[0]+newDir[1] != 0:
             newX, newY = cubeSize-newX-1, cubeSize-newY-1
-#        else:
-#            printMap(M, (x, y) )
-#            print('Weird case', dir, newDir, newX, newY, newRegion)
     elif newDir == dir:
         newX, newY = rx, ry
         if newDir[1] == 0:
@@ -170,14 +161,15 @@ def partA(filename: str) -> int:
     data = getData(filename)
     M, curPos, instructions = parseData(data)
 
-    printMap(M, curPos)
-    print()
-
     curDir = 0
     for inst in instructions:
         if type(inst) == int:
-            curPos = makeMove(M, curPos, (directions[curDir], inst[1]))
-        curDir = (curDir + inst[0]) % len(directions)
+            curPos = makeMove(M, curPos, (directions[curDir], inst))
+        else:
+            if inst == 'R':
+                curDir = (curDir + 1) % len(directions)
+            elif inst == 'L':
+                curDir = (curDir - 1) % len(directions)
 
     return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + curDir
 
@@ -251,11 +243,8 @@ def partB(filename: str, cubeSize=50) -> int:
         if type(inst) == int:
             for _ in range(inst):
                 newPos, newDir, _ = moveOnCube(M, curPos[0], curPos[1], curDir, translationMap, cubeSize, regions)
-                print("%d, %d" % (newPos[0], newPos[1]))
-                if newPos == (133,3):
-                    print('here we go')
                 if M[newPos[1]][newPos[0]] == '#':
-                    print("Blocked by rock at ", newPos)
+                    # Blocked by rock
                     break
                 assert M[newPos[1]][newPos[0]] == '.'
                 curDir, curPos = newDir, newPos
@@ -284,7 +273,7 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-#    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
-#    print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-#    print(partB(os.path.dirname(__file__) + '/../data/sample.txt', 4))
+    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
+    print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
+    print(partB(os.path.dirname(__file__) + '/../data/sample.txt', 4))
     print(partB(os.path.dirname(__file__) + '/../data/input.txt'))
