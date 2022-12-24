@@ -93,8 +93,16 @@ def buildTranslationMap(M, cubeSize):
                 if len(nextEdge) == 1:
                     p.add(nextEdge.pop())
 
-            if len(p) == 2 and p.intersection(set([pp for ppp in nextPairs for pp in ppp])) == set():
-                nextPairs.add(tuple(sorted(p)))
+            if len(p) == 2:
+                if p.intersection(set([pp for ppp in nextPairs for pp in ppp])) == set():
+                    nextPairs.add(tuple(sorted(p)))
+                else:
+                    # If an edge would be in more than one pair, get rid of both pairs
+                    nextPairs = set(filter(lambda x: set(x).intersection(p) == set(), nextPairs))
+
+        if nextPairs == set():
+            assert len(edges - handledEdges) == 2
+            nextPairs.add(tuple(edges - handledEdges))
 
         for (edge1, edge2) in nextPairs:
             region1, dir1 = getRegionAndDirectionOfOuterEdge(*edge1)
@@ -106,26 +114,17 @@ def buildTranslationMap(M, cubeSize):
             handledEdges.add(edge2)
         currentPairs = nextPairs
 
-    return translationMap
+    return translationMap, regions
 
 def isWithinBounds(M, x, y):
     return (x >= 0 and y >= 0 and y < len(M) and x < len(M[y]))
 
-def moveOnCube(M, x, y, dir, translationMap, cubeSize):
-    print('Current map, about to move', dir)
-    printMap(M, (x, y))
-    import time
-    time.sleep(0.5)
+def moveOnCube(M, x, y, dir, translationMap, cubeSize, regions):
     maybePos = (x+dir[0], y+dir[1])
 
     # Simple case
-    if isWithinBounds(M, *maybePos) and M[maybePos[1]][maybePos[0]] != ' ':
-        if M[maybePos[1]][maybePos[0]] == '#':
-            return (x, y), dir
-        elif M[maybePos[1]][maybePos[0]] == '.':
-            return maybePos, dir
-        else:
-            assert False
+    if isWithinBounds(M, *maybePos) and getRegion(*maybePos, cubeSize) in regions:
+        return maybePos, dir, False
 
     fromRegion = getRegion(x, y, cubeSize)
     rx, ry = getRelativeCoordinates(x, y, fromRegion, cubeSize)
@@ -137,8 +136,15 @@ def moveOnCube(M, x, y, dir, translationMap, cubeSize):
         newX, newY = ry, rx
         if dir[0]+dir[1]+newDir[0]+newDir[1] != 0:
             newX, newY = cubeSize-newX-1, cubeSize-newY-1
-        else:
-            print('Weird case', dir, newDir, newX, newY)
+#        else:
+#            printMap(M, (x, y) )
+#            print('Weird case', dir, newDir, newX, newY, newRegion)
+    elif newDir == dir:
+        newX, newY = rx, ry
+        if newDir[1] == 0:
+            newX = cubeSize-newX-1
+        if newDir[0] == 0:
+            newY = cubeSize-newY-1
     else:
         newX, newY = rx, ry
         if newDir[0] == 0:
@@ -146,7 +152,8 @@ def moveOnCube(M, x, y, dir, translationMap, cubeSize):
         if newDir[1] == 0:
             newY = cubeSize-newY-1
 
-    return getAbsoluteCoordinates(newX, newY, newRegion, cubeSize), newDir
+    newCoords = getAbsoluteCoordinates(newX, newY, newRegion, cubeSize)
+    return newCoords, newDir, False
 
 
 def getRelativeCoordinates(x, y, region, cubeSize):
@@ -166,11 +173,13 @@ def partA(filename: str) -> int:
     printMap(M, curPos)
     print()
 
+    curDir = 0
     for inst in instructions:
-        curDir = inst[0]
-        curPos = makeMove(M, curPos, inst)
+        if type(inst) == int:
+            curPos = makeMove(M, curPos, (directions[curDir], inst[1]))
+        curDir = (curDir + inst[0]) % len(directions)
 
-    return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + directions.index(curDir)
+    return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + curDir
 
 def makeMove(M, curPos, inst):
     for _ in range(inst[1]):
@@ -196,29 +205,6 @@ def makeMove(M, curPos, inst):
 
     return curPos
 
-def makeMoveOnCube(M, sides, curPos, inst, cubeSize):
-    curDir = inst[0]
-    for _ in range(inst[1]):
-        curSide = (curPos[0] // cubeSize, curPos[1] // cubeSize)
-
-        newPos = (curPos[0] + curDir[0], curPos[1] + curDir[1])
-        newSide = (newPos[0] // cubeSize, newPos[1] // cubeSize)
-
-        if newSide in sides:
-            curPos = newPos
-            continue
-
-        if curDir == (1,0):
-            maybe = (curSide[0] + 1, curSide[1]-1)
-            if maybe in sides:
-                newPos = getAbsoluteCoordinates(curPos[1] % cubeSize, cubeSize - 1, maybe, cubeSize)
-                curPos = newPos
-                curdir
-
-
-    return curPos
-
-
 def moveBounded(M, curPos, curDir):
     return ((curPos[0] + curDir[0]) % max([len(s) for s in M]), (curPos[1] + curDir[1]) % len(M))
 
@@ -233,40 +219,53 @@ def parseData(data):
             curPos = (x, 0)
             break
 
-    curDir = directions[0]
     rawInstructions = rawInstructions.strip()
 
     b = ''
     instructions = []
     for c in rawInstructions:
-        if c == 'R':
+        if c in 'RL':
             if b != '':
-                instructions += [(curDir, int(b))]
+                instructions += [int(b), c]
                 b = ''
-            curDir = directions[(directions.index(curDir) + 1) % len(directions)]
-        elif c == 'L':
-            if b != '':
-                instructions += [(curDir, int(b))]
-                b = ''
-            curDir = directions[(directions.index(curDir) - 1) % len(directions)]
         elif c in '0123456789':
             b += c
         else:
             assert False
 
-    instructions += [(curDir, int(b))]
+    if b != '':
+        instructions += [int(b)]
+
     return M,curPos,instructions
 
 def partB(filename: str, cubeSize=50) -> int:
     data = getData(filename)
     M, curPos, instructions = parseData(data)
 
-    translationMap =  buildTranslationMap(M, cubeSize)
+    translationMap, regions =  buildTranslationMap(M, cubeSize)
 
-    for inst in instructions:
-        curDir = inst[0]
-        for _ in range(inst[1]):
-            curPos, curDir = moveOnCube(M, curPos[0], curPos[1], curDir, translationMap, cubeSize)
+
+    seenWrap = set()
+    curDir = directions[0]
+    for idx, inst in enumerate(instructions):
+        if type(inst) == int:
+            for _ in range(inst):
+                newPos, newDir, _ = moveOnCube(M, curPos[0], curPos[1], curDir, translationMap, cubeSize, regions)
+                print("%d, %d" % (newPos[0], newPos[1]))
+                if newPos == (133,3):
+                    print('here we go')
+                if M[newPos[1]][newPos[0]] == '#':
+                    print("Blocked by rock at ", newPos)
+                    break
+                assert M[newPos[1]][newPos[0]] == '.'
+                curDir, curPos = newDir, newPos
+        else:
+            if inst == 'R':
+                curDir = directions[(directions.index(curDir) + 1) % len(directions)]
+            elif inst == 'L':
+                curDir = directions[(directions.index(curDir) - 1) % len(directions)]
+            else:
+                assert False
 
     return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + directions.index(curDir)
 
@@ -287,5 +286,5 @@ if __name__ == '__main__':
     import os.path
 #    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
 #    print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-    print(partB(os.path.dirname(__file__) + '/../data/sample.txt', 4))
-#    print(partB(os.path.dirname(__file__) + '/../data/input.txt'))
+#    print(partB(os.path.dirname(__file__) + '/../data/sample.txt', 4))
+    print(partB(os.path.dirname(__file__) + '/../data/input.txt'))
