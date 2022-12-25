@@ -4,26 +4,34 @@ def printMap(M, curPos):
     for y, l in enumerate(M):
         print(''.join([(x,y) == curPos and 'X' or c for x, c in enumerate(l)]))
 
-def getRegion(x, y, cubeSize):
+def getRegionByCoordinates(x, y, cubeSize):
     return (x//cubeSize, y//cubeSize)
 
-def getRegions(M, cubeSize):
+def getAllRegions(M, cubeSize):
     for y in range(0, len(M), cubeSize):
         for x in range(0, len(M[y]), cubeSize):
             if M[y][x] != ' ':
                 yield (x//cubeSize, y//cubeSize)
 
 def getNeighborDirections(dir):
+    # ( 1, 0) -> ( 1, 1), ( 1,-1)
+    # ( 0, 1) -> ( 1, 1), (-1, 1)
+    # (-1, 0) -> (-1, 1), (-1,-1)
+    # ( 0,-1) -> ( 1,-1), (-1,-1)
     return ((dir[0] + dir[1]*dir[1], dir[1] + dir[0]*dir[0]),
             (dir[0] - dir[1]*dir[1], dir[1] - dir[0]*dir[0]))
 
 def getAllNeighborEdges(x, y, dir):
+    # All the possible corner edges, plus the similarly oriented
+    # edges in either direction.
     for edge in getPossibleCornerEdges(x, y, dir):
         yield edge
     yield x+dir[1], y+dir[0], dir
     yield x-dir[1], y-dir[0], dir
 
 def getPossibleCornerEdges(x, y, dir):
+    # for horizontal edges, yield all the adjacent vertical
+    # ones, and vice versa
     for dx in (dir[0], dir[0]-1):
         for dy in (dir[1], dir[1]-1):
             yield (x+dx, y+dy, (dir[1], dir[0]))
@@ -37,7 +45,7 @@ def isCornerConcave(regions, x1, y1, dir1, x2, y2, dir2):
     return (x, y) not in regions
 
 def buildTranslationMap(M, cubeSize):
-    regions = list(getRegions(M, cubeSize))
+    regions = list(getAllRegions(M, cubeSize))
 
     translationMap = {}
     edges = set()
@@ -46,9 +54,11 @@ def buildTranslationMap(M, cubeSize):
             if (region[0] + dir[0], region[1] + dir[1]) in regions:
                 translationMap[region, dir] = ((region[0] + dir[0], region[1] + dir[1]), dir)
             else:
-                # Couldn't go in that direction. So, we're at an outside edge.
+                # Couldn't go in that direction. This means we've found an outer edge.
                 edges.add(
-                    (region[0] + min(0, dir[0]), region[1] + min(0, dir[1]), (abs(dir[0]), abs(dir[1]))))
+                    (region[0] + min(0, dir[0]),
+                     region[1] + min(0, dir[1]),
+                     (abs(dir[0]), abs(dir[1]))))
 
     concaveCorners = set()
     for edge1 in edges:
@@ -70,10 +80,8 @@ def buildTranslationMap(M, cubeSize):
 
     handledEdges = set([edge for corner in concaveCorners for edge in corner])
     for edge1, edge2 in concaveCorners:
-        # They are ordered by direction, so the first one is the horizontal one.
         region1, dir1 = getRegionAndDirectionOfOuterEdge(*edge1)
         region2, dir2 = getRegionAndDirectionOfOuterEdge(*edge2)
-
         translationMap[region1, dir1] = (region2, dir2)
         translationMap[region2, dir2] = (region1, dir1)
 
@@ -116,11 +124,10 @@ def isWithinBounds(M, x, y):
 def moveOnCube(M, x, y, dir, translationMap, cubeSize, regions):
     maybePos = (x+dir[0], y+dir[1])
 
-    # Simple case
-    if isWithinBounds(M, *maybePos) and getRegion(*maybePos, cubeSize) in regions:
+    if isWithinBounds(M, *maybePos) and getRegionByCoordinates(*maybePos, cubeSize) in regions:
         return maybePos, dir, False
 
-    fromRegion = getRegion(x, y, cubeSize)
+    fromRegion = getRegionByCoordinates(x, y, cubeSize)
     rx, ry = getRelativeCoordinates(x, y, fromRegion, cubeSize)
     newRegion, toDir = translationMap[fromRegion, dir]
 
@@ -145,7 +152,6 @@ def moveOnCube(M, x, y, dir, translationMap, cubeSize, regions):
 
     newCoords = getAbsoluteCoordinates(newX, newY, newRegion, cubeSize)
     return newCoords, newDir, False
-
 
 def getRelativeCoordinates(x, y, region, cubeSize):
     return (getRelativeCoordinate(x, region[0], cubeSize),
@@ -228,7 +234,7 @@ def parseData(data):
     if b != '':
         instructions += [int(b)]
 
-    return M,curPos,instructions
+    return M, curPos, instructions
 
 def partB(filename: str, cubeSize=50) -> int:
     data = getData(filename)
@@ -236,15 +242,12 @@ def partB(filename: str, cubeSize=50) -> int:
 
     translationMap, regions =  buildTranslationMap(M, cubeSize)
 
-
-    seenWrap = set()
     curDir = directions[0]
-    for idx, inst in enumerate(instructions):
+    for inst in instructions:
         if type(inst) == int:
             for _ in range(inst):
-                newPos, newDir, _ = moveOnCube(M, curPos[0], curPos[1], curDir, translationMap, cubeSize, regions)
+                newPos, newDir, _ = moveOnCube(M, *curPos, curDir, translationMap, cubeSize, regions)
                 if M[newPos[1]][newPos[0]] == '#':
-                    # Blocked by rock
                     break
                 assert M[newPos[1]][newPos[0]] == '.'
                 curDir, curPos = newDir, newPos
@@ -262,14 +265,6 @@ def partB(filename: str, cubeSize=50) -> int:
 def getData(filename: str) -> list:
     with open(filename) as f:
         return f.read()
-
-def getLines(filename: str) -> list:
-    lines = []
-    with open(filename) as f:
-        for l in f:
-            l = l.rstrip('\n')
-            lines += [l]
-    return lines
 
 if __name__ == '__main__':
     import os.path
