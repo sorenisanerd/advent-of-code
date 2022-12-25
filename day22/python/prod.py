@@ -1,4 +1,110 @@
+# Right, down, left, up
 directions = [(1,0), (0,1), (-1,0), (0,-1)]
+
+def partA(filename: str) -> int:
+    data = getData(filename)
+    M, curPos, instructions = parseData(data)
+
+    curDirIdx = 0
+    for inst in instructions:
+        if type(inst) == int:
+            for _ in range(inst):
+                newPos = makeMove(M, curPos, directions[curDirIdx])
+                if M[newPos[1]][newPos[0]] == '#':
+                    break
+                elif M[newPos[1]][newPos[0]] == '.':
+                    curPos = newPos
+                else:
+                    assert False
+        else:
+            if inst == 'R':
+                curDirIdx = (curDirIdx + 1) % len(directions)
+            elif inst == 'L':
+                curDirIdx = (curDirIdx - 1) % len(directions)
+
+    return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + curDirIdx
+
+def getData(filename: str) -> str:
+    with open(filename) as f:
+        return f.read()
+
+def parseData(data):
+    mapData, rawInstructions = data.split('\n\n')
+
+    M = []
+    for line in mapData.splitlines():
+        M += [list(line)]
+
+    # Make sure all lines are the same length
+    maxx = max([len(l) for l in M])
+    for i in range(len(M)):
+        M[i] += [' '] * (maxx - len(M[i]))
+
+    for x in range(len(M[0])):
+        if M[0][x] == '.':
+            curPos = (x, 0)
+            break
+
+    rawInstructions = rawInstructions.strip()
+
+    buf = ''
+    instructions = []
+    for c in rawInstructions:
+        if c in 'RL':
+            if buf != '':
+                instructions += [int(buf), c]
+                buf = ''
+        elif c in '0123456789':
+            buf += c
+        else:
+            assert False
+
+    if buf != '':
+        instructions += [int(buf)]
+
+    return M, curPos, instructions
+
+def makeMove(M, curPos, curDir):
+    while True:
+        newPos = ((curPos[0] + curDir[0]) % (len(M[0])),
+                  (curPos[1] + curDir[1]) % len(M))
+
+        if M[newPos[1]][newPos[0]] != ' ':
+            break
+
+        curPos = newPos
+
+    return newPos
+
+
+def partB(filename: str, cubeSize=50) -> int:
+    data = getData(filename)
+    M, curPos, instructions = parseData(data)
+
+    translationMap, regions =  buildTranslationMap(M, cubeSize)
+
+    curDir = directions[0]
+    for inst in instructions:
+        if type(inst) == int:
+            for _ in range(inst):
+                newPos, newDir, _ = moveOnCube(M, *curPos, curDir, translationMap, cubeSize, regions)
+                if M[newPos[1]][newPos[0]] == '#':
+                    break
+                assert M[newPos[1]][newPos[0]] == '.'
+                curDir, curPos = newDir, newPos
+        else:
+            if inst == 'R':
+                curDir = directions[(directions.index(curDir) + 1) % len(directions)]
+            elif inst == 'L':
+                curDir = directions[(directions.index(curDir) - 1) % len(directions)]
+            else:
+                assert False
+
+    return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + directions.index(curDir)
+
+
+
+
 
 def printMap(M, curPos):
     for y, l in enumerate(M):
@@ -21,6 +127,13 @@ def getNeighborDirections(dir):
     return ((dir[0] + dir[1]*dir[1], dir[1] + dir[0]*dir[0]),
             (dir[0] - dir[1]*dir[1], dir[1] - dir[0]*dir[0]))
 
+def getPossibleCornerEdges(x, y, dir):
+    # for horizontal edges, yield all the adjacent vertical
+    # ones, and vice versa
+    for dx in (dir[0], dir[0]-1):
+        for dy in (dir[1], dir[1]-1):
+            yield (x+dx, y+dy, (dir[1], dir[0]))
+
 def getAllNeighborEdges(x, y, dir):
     # All the possible corner edges, plus the similarly oriented
     # edges in either direction.
@@ -28,13 +141,6 @@ def getAllNeighborEdges(x, y, dir):
         yield edge
     yield x+dir[1], y+dir[0], dir
     yield x-dir[1], y-dir[0], dir
-
-def getPossibleCornerEdges(x, y, dir):
-    # for horizontal edges, yield all the adjacent vertical
-    # ones, and vice versa
-    for dx in (dir[0], dir[0]-1):
-        for dy in (dir[1], dir[1]-1):
-            yield (x+dx, y+dy, (dir[1], dir[0]))
 
 def isCornerConcave(regions, x1, y1, dir1, x2, y2, dir2):
     # Somewhat surprisingly, direction doesn't matter.
@@ -48,17 +154,17 @@ def buildTranslationMap(M, cubeSize):
     regions = list(getAllRegions(M, cubeSize))
 
     translationMap = {}
+
     edges = set()
     for region in regions:
         for dir in directions:
-            if (region[0] + dir[0], region[1] + dir[1]) in regions:
-                translationMap[region, dir] = ((region[0] + dir[0], region[1] + dir[1]), dir)
-            else:
+            if (region[0] + dir[0], region[1] + dir[1]) not in regions:
                 # Couldn't go in that direction. This means we've found an outer edge.
-                edges.add(
-                    (region[0] + min(0, dir[0]),
-                     region[1] + min(0, dir[1]),
-                     (abs(dir[0]), abs(dir[1]))))
+                # Edges are stored as (x, y, dir), where dir is either (1,0) or (0,1).
+                # So, e.g. (2,3)'s upper edge is (2, 2, (0, 1)).
+                edges.add((region[0] + min(0, dir[0]),
+                           region[1] + min(0, dir[1]),
+                          (abs(dir[0]), abs(dir[1]))))
 
     concaveCorners = set()
     for edge1 in edges:
@@ -163,108 +269,9 @@ def getRelativeCoordinate(x, r, cubeSize):
 def getAbsoluteCoordinates(x, y, region, cubeSize):
     return (x + region[0]*cubeSize, y + region[1]*cubeSize)
 
-def partA(filename: str) -> int:
-    data = getData(filename)
-    M, curPos, instructions = parseData(data)
-
-    curDir = 0
-    for inst in instructions:
-        if type(inst) == int:
-            curPos = makeMove(M, curPos, (directions[curDir], inst))
-        else:
-            if inst == 'R':
-                curDir = (curDir + 1) % len(directions)
-            elif inst == 'L':
-                curDir = (curDir - 1) % len(directions)
-
-    return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + curDir
-
-def makeMove(M, curPos, inst):
-    for _ in range(inst[1]):
-        newPos = curPos
-        newPos = moveBounded(M, newPos, inst[0])
-        while True:
-            if ((newPos[1] >= len(M)) or
-                (newPos[1] < 0) or
-                (newPos[0] < 0) or
-                (newPos[0] >= len(M[newPos[1]])) or
-                (M[newPos[1]][newPos[0]] == ' ')):
-
-                newPos = moveBounded(M, newPos, inst[0])
-            else:
-                break
-
-        if M[newPos[1]][newPos[0]] == '.':
-            curPos = newPos
-        elif M[newPos[1]][newPos[0]] == '#':
-            break
-        else:
-            assert False
-
-    return curPos
-
 def moveBounded(M, curPos, curDir):
     return ((curPos[0] + curDir[0]) % max([len(s) for s in M]), (curPos[1] + curDir[1]) % len(M))
 
-def parseData(data):
-    mapData, rawInstructions = data.split('\n\n')
-    M = []
-    for line in mapData.splitlines():
-        M += [list(line)]
-
-    for x in range(len(M[0])):
-        if M[0][x] == '.':
-            curPos = (x, 0)
-            break
-
-    rawInstructions = rawInstructions.strip()
-
-    b = ''
-    instructions = []
-    for c in rawInstructions:
-        if c in 'RL':
-            if b != '':
-                instructions += [int(b), c]
-                b = ''
-        elif c in '0123456789':
-            b += c
-        else:
-            assert False
-
-    if b != '':
-        instructions += [int(b)]
-
-    return M, curPos, instructions
-
-def partB(filename: str, cubeSize=50) -> int:
-    data = getData(filename)
-    M, curPos, instructions = parseData(data)
-
-    translationMap, regions =  buildTranslationMap(M, cubeSize)
-
-    curDir = directions[0]
-    for inst in instructions:
-        if type(inst) == int:
-            for _ in range(inst):
-                newPos, newDir, _ = moveOnCube(M, *curPos, curDir, translationMap, cubeSize, regions)
-                if M[newPos[1]][newPos[0]] == '#':
-                    break
-                assert M[newPos[1]][newPos[0]] == '.'
-                curDir, curPos = newDir, newPos
-        else:
-            if inst == 'R':
-                curDir = directions[(directions.index(curDir) + 1) % len(directions)]
-            elif inst == 'L':
-                curDir = directions[(directions.index(curDir) - 1) % len(directions)]
-            else:
-                assert False
-
-    return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + directions.index(curDir)
-
-
-def getData(filename: str) -> list:
-    with open(filename) as f:
-        return f.read()
 
 if __name__ == '__main__':
     import os.path
