@@ -18,10 +18,14 @@ def partA(filename: str) -> int:
                     assert False
         else:
             if inst == 'R':
-                curDirIdx = (curDirIdx + 1) % len(directions)
+                curDirIdx += 1
             elif inst == 'L':
-                curDirIdx = (curDirIdx - 1) % len(directions)
+                curDirIdx -= 1
+            curDirIdx %= len(directions)
 
+    return getScore(curPos, curDirIdx)
+
+def getScore(curPos, curDirIdx):
     return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + curDirIdx
 
 def getData(filename: str) -> str:
@@ -36,9 +40,9 @@ def parseData(data):
         M += [list(line)]
 
     # Make sure all lines are the same length
-    maxx = max([len(l) for l in M])
+    width = max([len(l) for l in M])
     for i in range(len(M)):
-        M[i] += [' '] * (maxx - len(M[i]))
+        M[i] += [' '] * (width - len(M[i]))
 
     for x in range(len(M[0])):
         if M[0][x] == '.':
@@ -52,8 +56,9 @@ def parseData(data):
     for c in rawInstructions:
         if c in 'RL':
             if buf != '':
-                instructions += [int(buf), c]
+                instructions += [int(buf)]
                 buf = ''
+            instructions += [c]
         elif c in '0123456789':
             buf += c
         else:
@@ -65,6 +70,7 @@ def parseData(data):
     return M, curPos, instructions
 
 def makeMove(M, curPos, curDir):
+    # If we get into no-man's-land, wrap around
     while True:
         newPos = ((curPos[0] + curDir[0]) % (len(M[0])),
                   (curPos[1] + curDir[1]) % len(M))
@@ -75,7 +81,6 @@ def makeMove(M, curPos, curDir):
         curPos = newPos
 
     return newPos
-
 
 def partB(filename: str, cubeSize=50) -> int:
     data = getData(filename)
@@ -100,10 +105,7 @@ def partB(filename: str, cubeSize=50) -> int:
             else:
                 assert False
 
-    return (curPos[1]+1) * 1000 + (curPos[0]+1) * 4 + directions.index(curDir)
-
-
-
+    return getScore(curPos, directions.index(curDir))
 
 
 def printMap(M, curPos):
@@ -171,7 +173,7 @@ def buildTranslationMap(M, cubeSize):
         for edge2 in getPossibleCornerEdges(*edge1):
             if edge2 in edges:
                 if isCornerConcave(regions, *edge1, *edge2):
-                    concaveCorners.add(tuple(sorted([edge1, edge2], key=lambda x:x[2])))
+                    concaveCorners.add(frozenset([edge1, edge2]))
 
     def getRegionAndDirectionOfOuterEdge(x, y, dir, regions=regions):
         r = set([(x, y), (x+dir[0], y+dir[1])]).intersection(regions)
@@ -185,13 +187,58 @@ def buildTranslationMap(M, cubeSize):
         return r, d
 
     handledEdges = set([edge for corner in concaveCorners for edge in corner])
+    currentPairs = set()
     for edge1, edge2 in concaveCorners:
         region1, dir1 = getRegionAndDirectionOfOuterEdge(*edge1)
         region2, dir2 = getRegionAndDirectionOfOuterEdge(*edge2)
         translationMap[region1, dir1] = (region2, dir2)
         translationMap[region2, dir2] = (region1, dir1)
+        currentPairs.add(frozenset([edge1, edge2]))
 
-    currentPairs = set(concaveCorners)
+    # The next chunk of code is genuinely upsetting to me.
+    # If you have a clearer way to do it, please let me know.
+    # We're trying see if any of the concave corners are
+    # adjacent to another concave corner. If so, we "join" them
+    # for the part of the algorightm where we move away from
+    # corners to populate the translation map.
+
+    # For each corner...
+    for corner in concaveCorners:
+        breakk = False
+        # ...we look at each of its edges...
+        for edge in corner:
+            # ...remember the other edge of the corner...
+            otherEdge = corner - set([edge])
+
+            # ...and look for additional neighboring edges...
+            isect = (set(getPossibleCornerEdges(*edge)) - otherEdge) & handledEdges
+
+            assert len(isect) < 2
+
+            # ...if we do find one...
+            if len(isect) == 1:
+                neighbor = isect.pop()
+
+                # ...we find the corner it belong to...
+                neighborCorner, = set(filter(lambda c: neighbor in c, concaveCorners))
+
+                # ...and determine the other edge of that corner...
+                neighborsNeighbor, = (neighborCorner - set([neighbor]))
+
+                # ...and we finally remove both corners...
+                currentPairs.remove(corner)
+                currentPairs.remove(neighborCorner)
+
+                # ...turn the set into its only element..
+                otherEdge, = otherEdge
+
+                # ...and add a new pair with the two far edges.
+                currentPairs.add(frozenset([otherEdge, neighborsNeighbor]))
+                breakk = True
+                break
+        if breakk:
+            break
+
     while handledEdges != edges:
         nextPairs = set()
         for pair in currentPairs:
@@ -230,31 +277,23 @@ def isWithinBounds(M, x, y):
 def moveOnCube(M, x, y, dir, translationMap, cubeSize, regions):
     maybePos = (x+dir[0], y+dir[1])
 
-    if isWithinBounds(M, *maybePos) and getRegionByCoordinates(*maybePos, cubeSize) in regions:
+    if getRegionByCoordinates(*maybePos, cubeSize) in regions:
         return maybePos, dir, False
 
     fromRegion = getRegionByCoordinates(x, y, cubeSize)
-    rx, ry = getRelativeCoordinates(x, y, fromRegion, cubeSize)
     newRegion, toDir = translationMap[fromRegion, dir]
 
     newDir = (-toDir[0], -toDir[1])
-    if abs(newDir[0]) == abs(dir[1]) and abs(newDir[1]) == abs(dir[0]):
-        # We're either going from horizontal to vertical or vice versa.
-        newX, newY = ry, rx
-        if dir[0]+dir[1]+newDir[0]+newDir[1] != 0:
-            newX, newY = cubeSize-newX-1, cubeSize-newY-1
-    elif newDir == dir:
-        newX, newY = rx, ry
-        if newDir[1] == 0:
-            newX = cubeSize-newX-1
-        if newDir[0] == 0:
-            newY = cubeSize-newY-1
-    else:
-        newX, newY = rx, ry
-        if newDir[0] == 0:
-            newX = cubeSize-newX-1
-        if newDir[1] == 0:
-            newY = cubeSize-newY-1
+
+    curDirIdx = directions.index(dir)
+    newDirIdx = directions.index(newDir)
+
+    newX, newY = getRelativeCoordinates(*maybePos, fromRegion, cubeSize)
+
+    i = 0
+    while (curDirIdx+i) % 4 != newDirIdx:
+        newY, newX = newX, cubeSize-newY-1
+        i += 1
 
     newCoords = getAbsoluteCoordinates(newX, newY, newRegion, cubeSize)
     return newCoords, newDir, False
@@ -267,11 +306,7 @@ def getRelativeCoordinate(x, r, cubeSize):
     return x-r*cubeSize
 
 def getAbsoluteCoordinates(x, y, region, cubeSize):
-    return (x + region[0]*cubeSize, y + region[1]*cubeSize)
-
-def moveBounded(M, curPos, curDir):
-    return ((curPos[0] + curDir[0]) % max([len(s) for s in M]), (curPos[1] + curDir[1]) % len(M))
-
+    return ((x % cubeSize) + region[0]*cubeSize, (y % cubeSize) + region[1]*cubeSize)
 
 if __name__ == '__main__':
     import os.path
