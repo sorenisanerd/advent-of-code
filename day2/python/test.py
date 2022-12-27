@@ -2,7 +2,7 @@ import os
 import unittest
 from .prod import partA, partB, roundScore
 
-class Day2TestCase(unittest.TestCase):
+class DayTestCase(unittest.TestCase):
     def testRoundscore(self):
         self.assertEqual(roundScore('Rock', 'Rock'), 4)
         self.assertEqual(roundScore('Paper', 'Rock'), 1)

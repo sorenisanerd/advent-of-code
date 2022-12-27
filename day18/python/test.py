@@ -5,7 +5,7 @@ try:
 except ImportError:
     from prod import partA, partB, getAdjacentSurfaces
 
-class Day1TestCase(unittest.TestCase):
+class DayTestCase(unittest.TestCase):
     def testPartA(self):
         self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 64)
 

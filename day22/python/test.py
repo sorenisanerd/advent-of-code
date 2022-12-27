@@ -5,7 +5,7 @@ try:
 except ImportError:
     from prod import partA, partB, buildTranslationMap, getData, parseData, getNeighborDirections, getPossibleCornerEdges, getAllNeighborEdges
 
-class Day1TestCase(unittest.TestCase):
+class DayTestCase(unittest.TestCase):
     def testPartA(self):
         self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 6032)
         self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), 93226)
@@ -13,6 +13,13 @@ class Day1TestCase(unittest.TestCase):
     def testPartB(self):
         self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt', cubeSize=4), 5031)
         self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 37415)
+
+    def testBuildTranslationMap(self):
+        for f in ['sample.txt', 'sample2.txt']:
+            with open(os.path.dirname(__file__) + '/../data/sample2.txt', 'r') as fp:
+                M, _, _ = parseData(fp.read())
+            buildTranslationMap(M, 4)
+
 
     def testGetPossibleCornerEdges(self):
         self.assertEqual(set(getPossibleCornerEdges(1, 1, (0, 1))), set([(1, 2, (1, 0)),
