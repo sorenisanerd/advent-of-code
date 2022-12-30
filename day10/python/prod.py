@@ -33,9 +33,11 @@ def partB(filename: str) -> int:
         else:
             history[h] = '.'
 
-    for i in range(0, len(history), 40):
-        print(''.join(history[i:i+40]))
+    rv = []
+    for i in range(0, 240, 40):
+        rv += [''.join(history[i:i+40])]
 
+    return '\n'.join(rv)
 
 def getLines(filename: str) -> list:
     lines = []
@@ -47,7 +49,5 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-    print(partB(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partB(os.path.dirname(__file__) + '/../data/input.txt'))

@@ -5,6 +5,7 @@ from .prod import partA, partB, getScore
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
         self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 157)
+        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), 8039)
 
     def testScore(self):
         self.assertEqual(getScore('a'), 1)
@@ -14,3 +15,7 @@ class DayTestCase(unittest.TestCase):
 
     def testPartB(self):
         self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 70)
+        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 2510)
+if __name__ == '__main__':
+    unittest.main()
+

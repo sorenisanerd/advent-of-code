@@ -1,19 +1,6 @@
 import re
 import time
 
-
-global latest
-latest = None
-def printTS(s, start=time.time()):
-    global latest
-    if latest is None:
-        latest = start
-    now = time.time()
-    rv = now - latest
-    print(s, rv)
-    latest = now
-    return rv
-
 def dist(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
 
@@ -72,10 +59,8 @@ def followEdge(sx, sy, bx, by):
 
 
 def partB(filename: str, minx, miny, maxx, maxy) -> int:
-    printTS('a')
     lines = getLines(filename)
     pairs, _ = parseLines(lines)
-    printTS('b')
 
     def isCovered(x, y, pairs=pairs):
         for pair in pairs:
@@ -85,7 +70,6 @@ def partB(filename: str, minx, miny, maxx, maxy) -> int:
         return False
 
     for pair in pairs:
-        printTS(pair)
         for (x, y) in followEdge(*pair[:-1]):
             if minx <= x <= maxx and miny <= y <= maxy:
                 if not isCovered(x, y):

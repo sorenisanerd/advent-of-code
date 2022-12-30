@@ -26,7 +26,6 @@ def partA(filename: str) -> int:
     lines = getLines(filename)
 
     cavemap = getCavemap(lines)
-    printCaveMap(cavemap)
 
     i = 1
     while True:
@@ -97,7 +96,5 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-#    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-#    print(partB(os.path.dirname(__file__) + '/../data/sample.txt'))
-#    print(partB(os.path.dirname(__file__) + '/../data/input.txt'))
+    print(partB(os.path.dirname(__file__) + '/../data/input.txt'))

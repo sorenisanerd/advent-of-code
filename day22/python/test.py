@@ -1,9 +1,6 @@
 import os
 import unittest
-try:
-    from .prod import partA, partB, buildTranslationMap, getData, parseData, getNeighborDirections, getPossibleCornerEdges, getAllNeighborEdges, isCornerConcave
-except ImportError:
-    from prod import partA, partB, buildTranslationMap, getData, parseData, getNeighborDirections, getPossibleCornerEdges, getAllNeighborEdges, isCornerConcave
+from .prod import partA, partB, buildTranslationMap, getData, parseData, getNeighborDirections, getPossibleCornerEdges, getAllNeighborEdges, isCornerConcave
 
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
@@ -13,7 +10,6 @@ class DayTestCase(unittest.TestCase):
     def testPartB(self):
         self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt', cubeSize=4), 5031)
         self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 37415)
-
 
     def testIsCornerConcave(self):
         # Consider these four configurations:

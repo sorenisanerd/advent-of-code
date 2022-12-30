@@ -23,12 +23,13 @@ class Directory(object):
         for d in self.subdirectories:
             self.subdirectories[d].walk_subdirectories(func)
 
-
 def parseDirectoryStructure(lines: list) -> Directory:
+    root = Directory()
     state = 'UNKNOWN'
     for l in lines:
         if l[0] == '$':
             state = 'CMDLINE'
+
         if state == 'CMDLINE':
             assert l[0] == '$'
             cmdline = l[2:]
@@ -58,40 +59,35 @@ def parseDirectoryStructure(lines: list) -> Directory:
             curdir.add_file(int(size), name)
     return root
 
-root = Directory()
-total_size_of_directories_under_100000 = 0
-
 def partA(filename: str) -> int:
     lines = getLines(filename)
-    parseDirectoryStructure(lines)
-    curdir = root
 
-    global total_size_of_directories_under_100000
+    assert lines[0] == '$ cd /'
 
-    def f(d):
-        global total_size_of_directories_under_100000
+    root = parseDirectoryStructure(lines)
+
+    sizes_of_directories_under_100000 = []
+
+    def f(d, sizes_of_directories_under_100000=sizes_of_directories_under_100000):
         total = d.total()
         if total < 100000:
-            total_size_of_directories_under_100000 += total
+            sizes_of_directories_under_100000 += [total]
 
     root.walk_subdirectories(f)
-    return total_size_of_directories_under_100000
-
+    return sum(sizes_of_directories_under_100000)
 
 def partB(filename: str) -> int:
     lines = getLines(filename)
-    curdir = root
-    parseDirectoryStructure(lines)
+    root = parseDirectoryStructure(lines)
 
-    global dirsizes
     dirsizes = []
 
-    def f(d):
-        global dirsizes
+    def f(d, dirsizes=dirsizes):
         total = d.total()
         dirsizes += [total]
 
     root.walk_subdirectories(f)
+
     dirsizes = sorted(dirsizes)
 
     used_capacity = root.total()

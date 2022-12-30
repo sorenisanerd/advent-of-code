@@ -39,13 +39,13 @@ def floyd_warshall(V):
     return dist
 
 cache1 = dict()
-def _dfs(V, distances, cur, rest, time_remaining=30):
+def dfs(V, distances, cur, rest, time_remaining=30):
     key = (cur, tuple(rest), time_remaining)
     if key not in cache1:
         cache1[key] = dfs_(V, distances, cur, rest, time_remaining)
     return cache1[key]
 
-def dfs(V, distances, cur, rest, time_remaining=30):
+def dfs_(V, distances, cur, rest, time_remaining=30):
     if time_remaining == 0:
         return 0
 
@@ -58,13 +58,13 @@ def dfs(V, distances, cur, rest, time_remaining=30):
     return rv
 
 cache2 = dict()
-def _dfs2(V, distances, cur, rest, time_remaining=30):
+def dfs2(V, distances, cur, rest, time_remaining=30):
     key = (cur, tuple(rest), time_remaining)
     if key not in cache2:
         cache2[key] = dfs2_(V, distances, cur, rest, time_remaining)
     return cache2[key]
 
-def dfs2(V, distances, cur, rest, time_remaining=26):
+def dfs2_(V, distances, cur, rest, time_remaining=26):
     if time_remaining == 0:
         return dfs(V, distances, 'AA', rest, 26)
 
@@ -103,7 +103,6 @@ def parseLines(lines):
         V[name] = (int(rate), tunnels.split(', '))
     return V
 
-
 def partB(filename: str) -> int:
     lines = getLines(filename)
     V = parseLines(lines)
@@ -120,7 +119,5 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-    print(partB(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partB(os.path.dirname(__file__) + '/../data/input.txt'))

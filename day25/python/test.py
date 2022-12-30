@@ -1,13 +1,11 @@
 import os
 import unittest
-try:
-    from .prod import partA, partB, snafuToDecimal, decimalToSnafu
-except ImportError:
-    from prod import partA, partB, snafuToDecimal, decimalToSnafu
+from .prod import partA, snafuToDecimal, decimalToSnafu
 
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
         self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), '2=-1=0')
+        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), '20-1-0=-2=-2220=0011')
 
     def testDecimalToSnafu(self):
         self.assertEqual(decimalToSnafu(1), '1')
@@ -38,9 +36,6 @@ class DayTestCase(unittest.TestCase):
         self.assertEqual(snafuToDecimal('1=11-2'), 2022)
         self.assertEqual(snafuToDecimal('1-0---0'), 12345)
         self.assertEqual(snafuToDecimal('1121-1110-1=0'), 314159265)
-
-    def testPartB(self):
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 0)
 
 if __name__ == '__main__':
     unittest.main()

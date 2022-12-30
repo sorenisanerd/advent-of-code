@@ -1,13 +1,11 @@
 import os
 import unittest
-try:
-    from .prod import partA, partB, shift
-except ImportError:
-    from prod import partA, partB, shift
+from .prod import partA, partB, shift
 
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
         self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 3)
+        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), 7584)
 
     def testShift(self):
         def t(l, idx):
@@ -22,6 +20,6 @@ class DayTestCase(unittest.TestCase):
 
     def testPartB(self):
         self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 1623178306)
-
+        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 4907679608191)
 if __name__ == '__main__':
     unittest.main()

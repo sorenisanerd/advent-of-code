@@ -12,6 +12,11 @@ class DayTestCase(unittest.TestCase):
 
     def testPartA(self):
         self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 15)
+        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), 11906)
 
     def testPartB(self):
         self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 12)
+        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 11186)
+if __name__ == '__main__':
+    unittest.main()
+

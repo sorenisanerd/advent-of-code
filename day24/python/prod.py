@@ -4,47 +4,15 @@ from queue import PriorityQueue
 
 def partA(filename: str) -> int:
     lines = getLines(filename)
-    M = []
+    width, height, bad, start, goal = parseMap(lines)
+    return aStar(timedCoordinate(start, 0), goal, bad, width, height)
 
-    ups = set()
-    rights = set()
-    lefts = set()
-    downs = set()
-
-    # Subtracting the walls
-    width = len(lines[0])
-    height = len(lines)
-
-    for y, l in enumerate(lines):
-        for x, c in enumerate(l):
-            if c == '^':
-                ups.add((x, y))
-            elif c == '>':
-                rights.add((x, y))
-            elif c == '<':
-                lefts.add((x, y))
-            elif c == 'v':
-                downs.add((x, y))
-
-    printMap(width, height, ups, rights, lefts, downs)
-
-    bad = set()
-    for i in range(1, 2500):
-        ups, rights, lefts, downs = step(width, height, ups, rights, lefts, downs)
-        bad |= set([(x, y, i) for (x, y) in ups | rights | lefts | downs])
-
-    # x y t
-    start = (1,0,0)
-    goal = (width-2, height-1)
-    return aStar(start, goal, bad, width, height)
-
-    back = aStar((goal[0], goal[1], there), (1,0), bad, width, height)
-    thereAgain = aStar((0, 1, there+back), goal, bad, width, height)
-    return there + back + thereAgain
+def timedCoordinate(pos, t):
+    return (pos[0], pos[1], t)
 
 def aStar(start, goal, bad, width, height):
     def h(pos, goal=goal):
-        t, x, y = pos
+        x, y, t = pos
         return abs(x - goal[0]) + abs(y - goal[1])
 
     openSet = PriorityQueue()
@@ -58,9 +26,8 @@ def aStar(start, goal, bad, width, height):
     fScore[start] = h(start, goal)
 
     startAndGoal = set([(start[0], start[1]), (goal[0], goal[1])])
-    while openSet:
-        current = openSet.get()[1]
-        print('Current:', current)
+    while not openSet.empty():
+        current = openSet.get(block=False)[1]
 
         if (current[0], current[1]) == goal:
             return gScore[current]
@@ -116,6 +83,14 @@ def printMap(width, height, ups, rights, lefts, downs, additional_points=None):
 
 def partB(filename: str) -> int:
     lines = getLines(filename)
+    width, height, bad, start, goal = parseMap(lines)
+
+    there = aStar(timedCoordinate(start, 0), goal, bad, width, height)
+    back = aStar(timedCoordinate(goal, there), start, bad, width, height)
+    thereAgain = aStar(timedCoordinate(start, there+back), goal, bad, width, height)
+    return there + back + thereAgain
+
+def parseMap(lines):
     M = []
 
     ups = set()
@@ -138,20 +113,19 @@ def partB(filename: str) -> int:
             elif c == 'v':
                 downs.add((x, y))
 
-    printMap(width, height, ups, rights, lefts, downs)
+#    printMap(width, height, ups, rights, lefts, downs)
 
     bad = set()
     for i in range(1, 2500):
         ups, rights, lefts, downs = step(width, height, ups, rights, lefts, downs)
         bad |= set([(x, y, i) for (x, y) in ups | rights | lefts | downs])
 
-    # x y t
-    start = (1,0,0)
-    goal = (width-2, height-1)
-    there = aStar(start, goal, bad, width, height)
-    back = aStar((goal[0], goal[1], there), (1,0), bad, width, height)
-    thereAgain = aStar((0, 1, there+back), goal, bad, width, height)
-    return there + back + thereAgain
+    bad = frozenset(bad)
+
+    start = (lines[0].index('.'), 0)
+    goal = (lines[-1].index('.'), len(lines)-1)
+
+    return width, height, bad, start, goal
 
 def getLines(filename: str) -> list:
     lines = []
@@ -163,7 +137,5 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-#    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
-#    print(partA(os.path.dirname(__file__) + '/../data/sample2.txt'))
-#    print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
+    print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
     print(partB(os.path.dirname(__file__) + '/../data/input.txt'))

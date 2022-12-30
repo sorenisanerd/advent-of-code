@@ -28,7 +28,6 @@ def solve(blueprint, time_left=24):
         whatIfWeJustHangOut = resources[3] + robots[3] * time_left
 
         if whatIfWeJustHangOut > d['ans']:
-#            print('Found better max:', whatIfWeJustHangOut)
             d['ans'] = whatIfWeJustHangOut
 
         # If we had enough resources to generate a new geode robot every
@@ -100,7 +99,6 @@ def solve(blueprint, time_left=24):
     dfs((0, 0, 0, 0), (1, 0, 0, 0), time_left)
     return d['ans']
 
-
 def partA(filename: str) -> int:
     lines = getLines(filename)
     blueprints = parseBlueprints(lines)
@@ -142,7 +140,5 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-    print(partA(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-    print(partB(os.path.dirname(__file__) + '/../data/sample.txt'))
     print(partB(os.path.dirname(__file__) + '/../data/input.txt'))
