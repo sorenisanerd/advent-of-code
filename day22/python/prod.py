@@ -92,10 +92,14 @@ def partB(filename: str, cubeSize=50) -> int:
     for inst in instructions:
         if type(inst) == int:
             for _ in range(inst):
-                newPos, newDir, _ = moveOnCube(M, *curPos, curDir, translationMap, cubeSize, regions)
+                newPos, newDir = moveOnCube(M, *curPos, curDir, translationMap, cubeSize, regions)
+
                 if M[newPos[1]][newPos[0]] == '#':
                     break
+
                 assert M[newPos[1]][newPos[0]] == '.'
+
+                # All clear
                 curDir, curPos = newDir, newPos
         else:
             if inst == 'R':
@@ -106,7 +110,6 @@ def partB(filename: str, cubeSize=50) -> int:
                 assert False
 
     return getScore(curPos, directions.index(curDir))
-
 
 def printMap(M, curPos):
     for y, l in enumerate(M):
@@ -130,8 +133,7 @@ def getNeighborDirections(dir):
             (dir[0] - dir[1]*dir[1], dir[1] - dir[0]*dir[0]))
 
 def getPossibleCornerEdges(x, y, dir):
-    # for horizontal edges, yield all the adjacent vertical
-    # ones, and vice versa
+    # Return all edges that this edge could form a corner with
     for dx in (dir[0], dir[0]-1):
         for dy in (dir[1], dir[1]-1):
             yield (x+dx, y+dy, (dir[1], dir[0]))
@@ -146,8 +148,10 @@ def getAllNeighborEdges(x, y, dir):
 
 def isCornerConcave(regions, x1, y1, dir1, x2, y2, dir2):
     # Somewhat surprisingly, direction doesn't matter.
+    # Don't believe me? Neither did I, but see the test (in test.py)
     x = max(x1, x2)
     y = max(y1, y2)
+
     # (x, y) is the square that is shared by the two edges
     # If that is a space, then the corner is concave.
     return (x, y) not in regions
@@ -175,6 +179,8 @@ def buildTranslationMap(M, cubeSize):
                 if isCornerConcave(regions, *edge1, *edge2):
                     concaveCorners.add(frozenset([edge1, edge2]))
 
+    # This translates from the (X, Y, (1, 0)) / (X, Y, (0, 1))
+    # notation back to region/dir
     def getRegionAndDirectionOfOuterEdge(x, y, dir, regions=regions):
         r = set([(x, y), (x+dir[0], y+dir[1])]).intersection(regions)
         assert len(r) == 1
@@ -186,7 +192,6 @@ def buildTranslationMap(M, cubeSize):
 
         return r, d
 
-    handledEdges = set([edge for corner in concaveCorners for edge in corner])
     currentPairs = set()
     for edge1, edge2 in concaveCorners:
         region1, dir1 = getRegionAndDirectionOfOuterEdge(*edge1)
@@ -194,6 +199,8 @@ def buildTranslationMap(M, cubeSize):
         translationMap[region1, dir1] = (region2, dir2)
         translationMap[region2, dir2] = (region1, dir1)
         currentPairs.add(frozenset([edge1, edge2]))
+
+    handledEdges = set([edge for corner in concaveCorners for edge in corner])
 
     # The next chunk of code is genuinely upsetting to me.
     # If you have a clearer way to do it, please let me know.
@@ -250,14 +257,14 @@ def buildTranslationMap(M, cubeSize):
 
             if len(p) == 2:
                 if p.intersection(set([pp for ppp in nextPairs for pp in ppp])) == set():
-                    nextPairs.add(tuple(sorted(p)))
+                    nextPairs.add(frozenset(p))
                 else:
                     # If an edge would be in more than one pair, get rid of both pairs
                     nextPairs = set(filter(lambda x: set(x).intersection(p) == set(), nextPairs))
 
         if nextPairs == set():
             assert len(edges - handledEdges) == 2
-            nextPairs.add(tuple(edges - handledEdges))
+            nextPairs.add(frozenset(edges - handledEdges))
 
         for (edge1, edge2) in nextPairs:
             region1, dir1 = getRegionAndDirectionOfOuterEdge(*edge1)
@@ -271,14 +278,11 @@ def buildTranslationMap(M, cubeSize):
 
     return translationMap, regions
 
-def isWithinBounds(M, x, y):
-    return (x >= 0 and y >= 0 and y < len(M) and x < len(M[y]))
-
 def moveOnCube(M, x, y, dir, translationMap, cubeSize, regions):
     maybePos = (x+dir[0], y+dir[1])
 
     if getRegionByCoordinates(*maybePos, cubeSize) in regions:
-        return maybePos, dir, False
+        return maybePos, dir
 
     fromRegion = getRegionByCoordinates(x, y, cubeSize)
     newRegion, toDir = translationMap[fromRegion, dir]
@@ -296,14 +300,14 @@ def moveOnCube(M, x, y, dir, translationMap, cubeSize, regions):
         i += 1
 
     newCoords = getAbsoluteCoordinates(newX, newY, newRegion, cubeSize)
-    return newCoords, newDir, False
+    return newCoords, newDir
 
 def getRelativeCoordinates(x, y, region, cubeSize):
     return (getRelativeCoordinate(x, region[0], cubeSize),
             getRelativeCoordinate(y, region[1], cubeSize))
 
-def getRelativeCoordinate(x, r, cubeSize):
-    return x-r*cubeSize
+def getRelativeCoordinate(x_or_y, region, cubeSize):
+    return x_or_y-region*cubeSize
 
 def getAbsoluteCoordinates(x, y, region, cubeSize):
     return ((x % cubeSize) + region[0]*cubeSize, (y % cubeSize) + region[1]*cubeSize)
