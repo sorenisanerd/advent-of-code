@@ -144,5 +144,5 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-    print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-    print(partB(os.path.dirname(__file__) + '/../data/input.txt'))
+    print(partA(get_data_file_path('input.txt')))
+    print(partB(get_data_file_path('input.txt')))

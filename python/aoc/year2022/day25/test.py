@@ -1,11 +1,12 @@
 import os
 import unittest
+from aoc.utils import get_data_file_path
 from .prod import partA, snafuToDecimal, decimalToSnafu
 
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), '2=-1=0')
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), '20-1-0=-2=-2220=0011')
+        self.assertEqual(partA(get_data_file_path('sample.txt')), '2=-1=0')
+        self.assertEqual(partA(get_data_file_path('input.txt')), '20-1-0=-2=-2220=0011')
 
     def testDecimalToSnafu(self):
         self.assertEqual(decimalToSnafu(1), '1')

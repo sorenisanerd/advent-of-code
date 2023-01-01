@@ -1,11 +1,12 @@
 import os
 import unittest
+from aoc.utils import get_data_file_path
 from .prod import partA, partB, getAdjacentSurfaces
 
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 64)
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), 4460)
+        self.assertEqual(partA(get_data_file_path('sample.txt')), 64)
+        self.assertEqual(partA(get_data_file_path('input.txt')), 4460)
 
     def testGetAdjacentSurfaces(self):
         self.assertEqual(set(getAdjacentSurfaces(0, 0, 0, 'x')),
@@ -19,8 +20,8 @@ class DayTestCase(unittest.TestCase):
                               (1, 0, -1, 'z')]))
 
     def testPartB(self):
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 58)
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 2498)
+        self.assertEqual(partB(get_data_file_path('sample.txt')), 58)
+        self.assertEqual(partB(get_data_file_path('input.txt')), 2498)
 
 if __name__ == '__main__':
     unittest.main()

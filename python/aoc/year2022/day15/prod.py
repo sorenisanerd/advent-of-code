@@ -4,7 +4,7 @@ import time
 def dist(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
 
-def partA(filename: str, target_row) -> int:
+def partA(filename: str, target_row=2000000) -> int:
     lines = getLines(filename)
     pairs, B = parseLines(lines)
 
@@ -58,7 +58,7 @@ def followEdge(sx, sy, bx, by):
     assert (x, y) == (sx-dist-1, sy)
 
 
-def partB(filename: str, minx, miny, maxx, maxy) -> int:
+def partB(filename: str, minx=0, miny=0, maxx=4_000_000, maxy=4_000_000) -> int:
     lines = getLines(filename)
     pairs, _ = parseLines(lines)
 
@@ -87,7 +87,7 @@ def getLines(filename: str) -> list:
 
 if __name__ == '__main__':
     import os.path
-    print(partA(os.path.dirname(__file__) + '/../data/sample.txt', 10))
-    print(partA(os.path.dirname(__file__) + '/../data/input.txt', 2000000))
-    print(partB(os.path.dirname(__file__) + '/../data/sample.txt', 0, 0, 20, 20))
-    print(partB(os.path.dirname(__file__) + '/../data/input.txt', 0, 0, 4000000, 4000000))
+    print(partA(get_data_file_path('sample.txt'), 10))
+    print(partA(get_data_file_path('input.txt'), 2000000))
+    print(partB(get_data_file_path('sample.txt'), 0, 0, 20, 20))
+    print(partB(get_data_file_path('input.txt'), 0, 0, 4000000, 4000000))

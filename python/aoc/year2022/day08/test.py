@@ -1,15 +1,16 @@
 import os
 import unittest
+from aoc.utils import get_data_file_path
 from .prod import partA, partB
 
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 21)
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), 1812)
+        self.assertEqual(partA(get_data_file_path('sample.txt')), 21)
+        self.assertEqual(partA(get_data_file_path('input.txt')), 1812)
 
     def testPartB(self):
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 8)
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 315495)
+        self.assertEqual(partB(get_data_file_path('sample.txt')), 8)
+        self.assertEqual(partB(get_data_file_path('input.txt')), 315495)
 
 if __name__ == '__main__':
     unittest.main()

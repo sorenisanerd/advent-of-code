@@ -1,15 +1,16 @@
 import os
 import unittest
+from aoc.utils import get_data_file_path
 from .prod import partA, partB, buildTranslationMap, getData, parseData, getNeighborDirections, getPossibleCornerEdges, getAllNeighborEdges, isCornerConcave
 
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 6032)
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), 93226)
+        self.assertEqual(partA(get_data_file_path('sample.txt')), 6032)
+        self.assertEqual(partA(get_data_file_path('input.txt')), 93226)
 
     def testPartB(self):
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt', cubeSize=4), 5031)
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 37415)
+        self.assertEqual(partB(get_data_file_path('sample.txt'), cubeSize=4), 5031)
+        self.assertEqual(partB(get_data_file_path('input.txt')), 37415)
 
     def testIsCornerConcave(self):
         # Consider these four configurations:
@@ -75,7 +76,7 @@ class DayTestCase(unittest.TestCase):
 
     def testBuildTranslationMap(self):
         for f in ['sample.txt', 'sample2.txt']:
-            with open(os.path.dirname(__file__) + '/../data/' + f, 'r') as fp:
+            with open(get_data_file_path(f), 'r') as fp:
                 M, _, _ = parseData(fp.read())
 
             assert(buildTranslationMap(M, 4))

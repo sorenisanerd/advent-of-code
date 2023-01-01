@@ -1,33 +1,101 @@
 import argparse
-import importlib
 import os
 import sys
 
-def main(argv):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("year", type=int, help="Year of the challenge")
-    parser.add_argument("day", type=int, help="Day of the challenge")
-    parser.add_argument("part", type=str, nargs='?', choices=['A', 'B', 'a', 'b', '1', '2'], help="Part of the challenge")
-    parser.add_argument("-i", "--input", type=str, help="Input file")
-    args = parser.parse_args(argv)
+from aoc.utils import get_year_day_module, get_year_day_test_module
 
-    year = args.year
-    day = args.day
-    part = args.part
+years = [2022]
+days = range(1, 26)
+
+def run(args, years=years, days=days):
+    if args.year is not None:
+        years = [args.year]
+
+    if args.day is not None:
+        days = [args.day]
 
     parts = ['A', 'B']
-    if part in ['A', 'a', '1']:
-        parts = ['A']
-    elif part in ['B', 'b', '2']:
-        parts = ['B']
+    if args.part is not None:
+        if args.part in ['A', 'a', '1']:
+            parts = ['A']
+        else:
+            parts = ['B']
 
-    module = importlib.import_module("aoc.year{}.day{:02}".format(year, day))
+    for year in years:
+        for day in days:
+            dayModule = get_year_day_module(year, day)
 
-    if args.input:
-        inputFile = args.input
-    else:
-        inputDirectory = os.path.abspath(os.path.dirname(__file__)) + '/../../data'
-        inputFile = "{}/{:04}/{:02}/input.txt".format(inputDirectory, year, day)
+            if args.input is not None:
+                inputFile = args.input
+            else:
+                inputFile = "{}/{:04}/{:02}/input.txt".format(args.input_dir, year, day)
 
-    for part in parts:
-        print(getattr(module, f"part{part}")(filename=inputFile))
+            for part in parts:
+                if hasattr(dayModule, f"part{part}"):
+                    rv = getattr(dayModule, f"part{part}")(filename=inputFile)
+                else:
+                    rv = 'Not implemented'
+
+                s = "Year {year:d}, day {day:d}, part {part}:".format(year=year, day=day, part=part)
+
+                if type(rv) == str and '\n' in rv:
+                    sep = '\n'
+                else:
+                    sep = ' '
+
+                print(s, rv, sep=sep)
+
+def test(args):
+    import unittest
+
+    discover_path = 'aoc'
+    if args.year is not None:
+        discover_path += '.year{}'.format(args.year)
+        if args.day is not None:
+            discover_path += '.day{:02}'.format(args.day)
+
+    suite = unittest.defaultTestLoader.discover(discover_path)
+
+    # create a test runner and run the test suite
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+
+    # print the result of the test run
+    print(f'Tests run: {result.testsRun}')
+    print(f'Errors: {len(result.errors)}')
+    print(f'Failures: {len(result.failures)}')
+
+
+def main(argv):
+    parser = argparse.ArgumentParser(prog="aoc", description="Advent of Code")
+    subparsers = parser.add_subparsers(dest="subcommand")
+
+    testParser = subparsers.add_parser("test", help="Run tests")
+    runParser = subparsers.add_parser("run", help="Run prod code")
+
+    for p in [testParser, runParser]:
+        p.add_argument("year", type=int, nargs='?', choices=years, help="Year of the challenge")
+        p.add_argument("day", type=int, nargs='?', choices=days, help="Day of the challenge")
+        p.add_argument("--input-dir", type=str, metavar='DIR',
+                        default=(os.path.abspath(os.path.dirname(__file__)) + '/../../data'),
+                        help="Directory structure holding input files in YYYY/DD/input.txt")
+
+    runParser.add_argument("part", type=str, nargs='?',
+                           choices=['A', 'B', 'a', 'b', '1', '2'],
+                           help="Part of the challenge")
+
+    runParser.add_argument("-i", "--input", type=str, help="Input file")
+
+    runParser.set_defaults(func=run)
+    testParser.set_defaults(func=test)
+
+    args = parser.parse_args(argv)
+
+    if args.subcommand is None:
+        parser.print_help()
+        return
+
+    args.func(args)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

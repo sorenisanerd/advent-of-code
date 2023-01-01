@@ -1,93 +1,41 @@
-handScoreMap = dict()
-handScoreMap['Rock'] = 1
-handScoreMap['Paper'] = 2
-handScoreMap['Scissors'] = 3
-outcomeScore = dict()
-outcomeScore['Lose'] = 0
-outcomeScore['Draw'] = 3
-outcomeScore['Win'] = 6
+from aoc.utils import *
+
+# Rock Paper Scissors
+# i loses against i+1 mod 3
+# i wins  against i-1 mod 3
+hands: list[str] = ['R', 'P', 'S']
 
 def partA(filename: str) -> int:
-    data = getData(filename)
-    theirMoveMap = dict()
-    theirMoveMap['A'] = 'Rock'
-    theirMoveMap['B'] = 'Paper'
-    theirMoveMap['C'] = 'Scissors'
-    myMoveMap = dict()
-    myMoveMap['X'] = 'Rock'
-    myMoveMap['Y'] = 'Paper'
-    myMoveMap['Z'] = 'Scissors'
-
-    score = 0
-    for (them, me) in data:
-        theirMove = theirMoveMap[them]
-        myMove = myMoveMap[me]
-
-        score += roundScore(theirMove, myMove)
-
-    return score
-
-valid_move = ['Rock', 'Paper', 'Scissors']
-
-def roundScore(theirMove: str, myMove:str) -> int:
-    assert theirMove in valid_move
-    assert myMove in valid_move
-
-    if theirMove == myMove:
-        outcomeScore = 3 # Draw
-    elif theirMove == 'Rock':
-        outcomeScore = myMove == 'Paper' and 6 or 0
-    elif theirMove == 'Paper':
-        outcomeScore = myMove == 'Scissors' and 6 or 0
-    else:
-        outcomeScore = myMove == 'Rock' and 6 or 0
-
-    handScore = handScoreMap[myMove]
-
-    return outcomeScore + handScore
+    return partAB(filename)[0]
 
 def partB(filename: str) -> int:
-    data = getData(filename)
-    theirMoveMap = dict()
-    theirMoveMap['A'] = 'Rock'
-    theirMoveMap['B'] = 'Paper'
-    theirMoveMap['C'] = 'Scissors'
+    return partAB(filename)[1]
 
-    # Given their move and our desired outcome (X -> Lose, Y -> Draw, Z -> Win)
-    # calculate our move
-    myMoveMap = dict()
-    myMoveMap['Rock'] = dict()
-    myMoveMap['Paper'] = dict()
-    myMoveMap['Scissors'] = dict()
-    myMoveMap['Rock']['X'] = 'Scissors'
-    myMoveMap['Rock']['Y'] = 'Rock'
-    myMoveMap['Rock']['Z'] = 'Paper'
-    myMoveMap['Paper']['X'] = 'Rock'
-    myMoveMap['Paper']['Y'] = 'Paper'
-    myMoveMap['Paper']['Z'] = 'Scissors'
-    myMoveMap['Scissors']['X'] = 'Paper'
-    myMoveMap['Scissors']['Y'] = 'Scissors'
-    myMoveMap['Scissors']['Z'] = 'Rock'
+def partAB(filename: str) -> tuple[int, int]:
+    data = []
+    for l in getLines(filename):
+        data += [l.strip().split(' ')]
 
-    data = getData(filename)
-    score = 0
-    for (them, outcome) in data:
-        theirMove = theirMoveMap[them]
-        myMove = myMoveMap[theirMove][outcome]
-        score += roundScore(theirMove, myMove)
+    scoreA = 0
+    scoreB = 0
 
-    return score
+    for (them, me) in data:
+        them = 'ABC'.index(them)
+        me = 'XYZ'.index(me)
 
-def getData(filename: str) -> list:
-    rv = []
-    with open(filename) as f:
-        for l in f:
-            l = l.strip()
-            a, b = l.split(' ')
-            rv += [(a, b)]
-    return rv
+        # Outcome score part 1
+        if them == me:
+            scoreA += 3
+        elif (me - them) % 3 == 1:
+            scoreA += 6
 
-if __name__ == '__main__':
-    import os.path
-    print(partA(os.path.dirname(__file__) + '/../data/input.txt'))
-    print(partB(os.path.dirname(__file__) + '/../data/input.txt'))
+        # Hand score part 1
+        scoreA += me + 1
+
+        # Outcome score part 2
+        scoreB += me * 3
+
+        # Hand score part 2
+        scoreB += (them + [-1, 0, 1][me]) % 3 + 1
+
+    return scoreA, scoreB

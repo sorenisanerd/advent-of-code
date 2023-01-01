@@ -1,11 +1,12 @@
 import os
 import unittest
+from aoc.utils import get_data_file_path
 from .prod import partA, partB, shift
 
 class DayTestCase(unittest.TestCase):
     def testPartA(self):
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/sample.txt'), 3)
-        self.assertEqual(partA(os.path.dirname(__file__) + '/../data/input.txt'), 7584)
+        self.assertEqual(partA(get_data_file_path('sample.txt')), 3)
+        self.assertEqual(partA(get_data_file_path('input.txt')), 7584)
 
     def testShift(self):
         def t(l, idx):
@@ -19,7 +20,7 @@ class DayTestCase(unittest.TestCase):
         self.assertEqual(t([4, -2, 5, 6, 7, 8, 9], 1), [4, 5, 6, 7, 8, -2, 9])
 
     def testPartB(self):
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/sample.txt'), 1623178306)
-        self.assertEqual(partB(os.path.dirname(__file__) + '/../data/input.txt'), 4907679608191)
+        self.assertEqual(partB(get_data_file_path('sample.txt')), 1623178306)
+        self.assertEqual(partB(get_data_file_path('input.txt')), 4907679608191)
 if __name__ == '__main__':
     unittest.main()
