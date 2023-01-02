@@ -1,41 +1,13 @@
 import string
+from aoc.utils import *
 
 def getScore(s: str) -> int:
-    assert len(s) == 1
-    assert s in string.ascii_letters
-    return string.ascii_letters.find(s)+1
+    return string.ascii_letters.index(s)+1
 
-def partA(filename: str) -> int:
-    lines = getData(filename)
-    score = 0
-    for l in lines:
-        comp1 = l[:len(l)//2]
-        comp2 = l[len(l)//2:]
-        whoopsie = set(comp1).intersection(set(comp2)).pop()
-        score += getScore(whoopsie)
-    return score
+def partA(filename: str):
+    return sum(getScore(set(comp1).intersection(comp2).pop())
+               for comp1, comp2 in [chunkCount(l.strip(), 2) for l in getLines(filename)])
 
 def partB(filename: str) -> int:
-    lines = getData(filename)
-    score = 0
-    x = 0
-    while x < len(lines):
-        l1, l2, l3 = lines[x:x+3]
-        x += 3
-        whoopsie = set(l1).intersection(l2).intersection(l3).pop()
-        score += getScore(whoopsie)
-    return score
-
-
-def getData(filename: str) -> list:
-    lines = []
-    with open(filename) as f:
-        for l in f:
-            l = l.strip()
-            lines += [l]
-    return lines
-
-if __name__ == '__main__':
-    import os.path
-    print(partA(get_data_file_path('input.txt')))
-    print(partB(get_data_file_path('input.txt')))
+    return sum(getScore(set(elf1).intersection(elf2).intersection(elf3).pop())
+               for elf1, elf2, elf3 in chunkSize(getLines(filename), 3))
