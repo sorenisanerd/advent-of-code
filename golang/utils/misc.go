@@ -68,3 +68,58 @@ func GetByIdx[T any](s []T, i int) T {
 	}
 	return s[i]
 }
+
+func GetPrefixes[T any](s []T) [][]T {
+	rv := [][]T{}
+	for i := 0; i <= len(s); i++ {
+		rv = append(rv, s[:i])
+	}
+	return rv
+}
+
+func ExampleGenerator[T any]() chan T {
+	ch := make(chan T)
+	go func() {
+		for i := 0; i < 100; i++ {
+			var v T
+			ch <- v
+			i++
+		}
+	}()
+	return ch
+}
+
+func Map[T1, T2 any](f func(T1) T2, s []T1) []T2 {
+	rv := []T2{}
+	for _, v := range s {
+		rv = append(rv, f(v))
+	}
+	return rv
+}
+
+func Filter[T any](f func(T) bool, s []T) []T {
+	rv := []T{}
+	for _, v := range s {
+		if f(v) {
+			rv = append(rv, v)
+		}
+	}
+	return rv
+}
+
+func Reduce[T1, T2 any](f func(T1, T2) T1, s []T2, init T1) T1 {
+	rv := init
+	for _, v := range s {
+		rv = f(rv, v)
+	}
+	return rv
+}
+
+func All[T any](f func(T) bool, s []T) bool {
+	for _, v := range s {
+		if !f(v) {
+			return false
+		}
+	}
+	return true
+}

@@ -19,7 +19,7 @@ func Abs(x int) int {
 
 func Sign(x int) int {
 	if x == 0 {
-		return 1
+		return 0
 	}
 	return x / Abs(x)
 }
