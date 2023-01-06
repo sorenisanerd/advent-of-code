@@ -1,54 +1,38 @@
+from aoc.utils import *
+
 def partA(filename: str) -> int:
     lines = getLines(filename)
     return partB(filename, n=2)
+
+def track(h, t):
+    if abs(h.x-t.x) == 2 and (h.y == t.y):
+        t += V((h.x-t.x)//2, 0)
+    elif abs(h.y-t.y) == 2 and (h.x == t.x):
+        t += V(0, (h.y-t.y)//2)
+    elif abs(h.y-t.y)>1 or abs(h.x-t.x)>1:
+        t += V((h.x-t.x)//abs(h.x-t.x), (h.y-t.y)//abs(h.y-t.y))
+    return t
+
 
 def partB(filename: str, n=10) -> int:
     lines = getLines(filename)
 
     visited = set()
+    knots = [V(0,0)]*n
 
-    knots = [(0,0)]*n
-    def move(hx, hy, move_dir):
-        dx, dy = {'U': (0,1),
-                  'D': (0,-1),
-                  'R': (1,0),
-                  'L': (-1,0)}[move_dir]
-        hx, hy = hx+dx, hy+dy
-        return hx, hy
-
-    def track(hx, hy, tx, ty):
-        if abs(hx-tx) == 2 and (hy == ty):
-            tx += (hx-tx)//2
-        elif abs(hy-ty) == 2 and (hx == tx):
-            ty += (hy-ty)//2
-        elif abs(hy-ty)>1 or abs(hx-tx)>1:
-            tx += (hx-tx)//abs(hx-tx)
-            ty += (hy-ty)//abs(hy-ty)
-        return tx, ty
+    d = {'U': V(0,1),
+                       'D': V(0,-1),
+                       'R': V(1,0),
+                       'L': V(-1,0)}
 
     for l in lines:
         direction, length = l.split(' ')
         length = int(length)
         for _ in range(length):
-            knots[0] = move(knots[0][0], knots[0][1], direction)
+            knots[0] += d[direction]
             for i in range(len(knots)-1):
-                knots[i+1] = track(knots[i][0], knots[i][1], knots[i+1][0], knots[i+1][1])
+                knots[i+1] = track(knots[i], knots[i+1])
 
-            visited.add((knots[-1][0], knots[-1][1]))
+            visited.add((knots[-1]))
 
     return len(visited)
-
-def getLines(filename: str) -> list:
-    lines = []
-    with open(filename) as f:
-        for l in f:
-            l = l.rstrip('\n')
-            lines += [l]
-    return lines
-
-if __name__ == '__main__':
-    import os.path
-    print(partA(get_data_file_path('sample.txt')))
-    print(partA(get_data_file_path('input.txt')))
-    print(partB(get_data_file_path('sample.txt')))
-    print(partB(get_data_file_path('input.txt')))

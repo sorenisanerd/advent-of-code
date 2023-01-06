@@ -1,3 +1,5 @@
+from aoc.utils import *
+
 class Monkey(object):
     def __init__(self, divisibly_by, operation, ifTrue, ifFalse):
         self.divisible_by = divisibly_by
@@ -72,28 +74,13 @@ def partA(filename: str, rounds=20, worryDecrease=3) -> int:
 
     m = 1
     for n in monkeys:
-       m *= n.divisible_by
+        m *= n.divisible_by
 
     for r in range(rounds):
         round(monkeys) #, modulo=m)
 
-    ordered = sorted(monkeys, key=lambda x: x.numOfInspections)
-    m1, m2 = ordered[-2:]
-    return m1.numOfInspections * m2.numOfInspections
+    m1, m2 = sorted([m.numOfInspections for m in monkeys])[-2:]
+    return m1*m2
 
 def partB(filename: str) -> int:
-    lines = getLines(filename)
     return partA(filename, rounds=10000, worryDecrease=1)
-
-def getLines(filename: str) -> list:
-    lines = []
-    with open(filename) as f:
-        for l in f:
-            l = l.rstrip('\n')
-            lines += [l]
-    return lines
-
-if __name__ == '__main__':
-    import os.path
-    print(partA(get_data_file_path('input.txt')))
-    print(partB(get_data_file_path('input.txt')))

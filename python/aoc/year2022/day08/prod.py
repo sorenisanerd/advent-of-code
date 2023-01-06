@@ -1,97 +1,53 @@
+from aoc.utils import *
+
 def partA(filename: str) -> int:
-    lines = getLines(filename)
+    M = Map(getLines(filename), mapFunc=int)
 
-    visible = set()
+    def checkDirection(p, d, M=M):
+        val:int = M[p]
+        while True:
+            p += d
+            new_value = M[p]
+            if new_value == OutOfBounds:
+                return True
+            elif new_value >= val:
+                return False
+
     counter = 0
-    for x in range(len(lines[0])):
-        z = -1
-        for y in range(len(lines)):
-            val = int(lines[y][x])
-            if val > z:
-                visible.add((x, y))
-                z = val
+    for p in M:
+        val = M[p]
 
-        z = -1
-        for y in range(len(lines)-1, -1, -1):
-            val = int(lines[y][x])
-            if val > z:
-                visible.add((x, y))
-                z = val
+        for d in map(V, four_directions):
+            if checkDirection(p, d):
+                counter += 1
+                break
 
-    for y in range(len(lines)):
-        z = -1
-        for x in range(len(lines[0])):
-            val = int(lines[y][x])
-            if val > z:
-                visible.add((x, y))
-                z = val
-
-        z = -1
-        for x in range(len(lines[0])-1, -1, -1):
-            val = int(lines[y][x])
-            if val > z:
-                visible.add((x, y))
-                z = int(lines[y][x])
-
-
-    return len(visible)
+    return counter
 
 def partB(filename: str) -> int:
-    lines = getLines(filename)
+    M = Map(getLines(filename), mapFunc=int)
 
-    def calculateScenicScore(lines, start_x, start_y):
-        start_value = int(lines[start_y][start_x])
-        rv = 1
+    def checkDirection(p, d, M=M):
+        val = M[p]
+        rv = 0
+        while True:
+            p += d
+            new_value = M[p]
 
-        # left
-        counter = 0
-        for x in range(start_x-1, -1, -1):
-            counter += 1
-            if int(lines[start_y][x]) >= start_value:
-                break
-        rv *= counter
+            if new_value == OutOfBounds:
+                return rv
 
-        # right
-        counter = 0
-        for x in range(start_x+1, len(lines[0])):
-            counter += 1
-            if int(lines[start_y][x]) >= start_value:
-                break
-        rv *= counter
+            rv += 1
 
-        # up
-        counter = 0
-        for y in range(start_y-1, -1, -1):
-            counter += 1
-            if int(lines[y][start_x]) >= start_value:
-                break
-        rv *= counter
+            if new_value >= val:
+                return rv
 
-        # down
-        counter = 0
-        for y in range(start_y+1, len(lines)):
-            counter += 1
-            if int(lines[y][start_x]) >= start_value:
-                break
-        rv *= counter
-        return rv
 
     rv = 0
-    for y in range(len(lines)):
-        for x in range(len(lines[0])):
-            rv = max(rv, calculateScenicScore(lines, x, y))
+    for p in M:
+        cand = 1
+        for d in map(V, four_directions):
+            cand *= checkDirection(p, d)
+        rv = max(rv, cand)
 
     return rv
-
-def getLines(filename: str) -> list:
-    lines = []
-    with open(filename) as f:
-        for l in f:
-            l = l.rstrip('\n')
-            lines += [l]
-    return lines
-
-if __name__ == '__main__':
-    import os.path
-    print(partA(get_data_file_path('input.txt')))
-    print(partB(get_data_file_path('input.txt')))

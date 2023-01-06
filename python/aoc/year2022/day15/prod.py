@@ -1,19 +1,14 @@
-import re
-import time
-
-def dist(x1, y1, x2, y2):
-    return abs(x1 - x2) + abs(y1 - y2)
+from aoc.utils import *
 
 def partA(filename: str, target_row=2000000) -> int:
     lines = getLines(filename)
     pairs, B = parseLines(lines)
 
     cols = set()
-    for pair in pairs:
-        sx, sy, bx, by, distance = pair
-        radius = distance - abs(target_row - sy)
+    for s, b, distance in pairs:
+        radius = distance - abs(target_row - s.y)
         if radius > 0:
-            for x in range(sx-radius, sx+radius+1):
+            for x in range(s.x-radius, s.x+radius+1):
                 if (x, target_row) not in B:
                     cols.add(x)
 
@@ -22,68 +17,60 @@ def partA(filename: str, target_row=2000000) -> int:
 def parseLines(lines):
     pairs = []
     B = set()
-    pattern = re.compile('Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)')
     for l in lines:
-        sx, sy, bx, by = list(map(int, pattern.match(l).groups()))
-        B.add((bx, by))
-        d = dist(sx, sy, bx, by)
-        pairs += [(sx, sy, bx, by, d)]
+        sx, sy, bx, by = ints(l)
+        s = V(sx, sy)
+        b = V(bx, by)
+        B.add(b)
+        d = MD2(s, b)
+        pairs += [(s, b, d)]
     return pairs,B
 
-def followEdge(sx, sy, bx, by):
-    dist = abs(sx - bx) + abs(sy - by)
-    # Start right beyond the the left corner...
-    x, y = sx-dist-1, sy
+def followEdge(s, b):
+    dist = MD2(s, b)
+
+    p = V(s.x-dist-1, s.y)
     # and go down and to the right
-    while x < sx:
-        yield x, y
-        x += 1
-        y += 1
+    while p.x < s.x:
+        yield p
+        p += V(1, 1)
+
     # then go up and to the right
-    while y > sy:
-        yield x, y
-        x += 1
-        y -= 1
+    while p.y > s.y:
+        yield p
+        p += (1, -1)
+
     # then up and to the left
-    while x > sx:
-        yield x, y
-        x -= 1
-        y -= 1
+    while p.x > s.x:
+        yield p
+        p += (-1, -1)
+
     # then down and to the left
-    while y < sy:
-        yield x, y
-        x -= 1
-        y += 1
+    while p.y < s.y:
+        yield p
+        p += (-1, 1)
+
     # We should be back where we started
-    assert (x, y) == (sx-dist-1, sy)
+    assert p == (s.x-dist-1, s.y)
 
 
 def partB(filename: str, minx=0, miny=0, maxx=4_000_000, maxy=4_000_000) -> int:
     lines = getLines(filename)
     pairs, _ = parseLines(lines)
 
-    def isCovered(x, y, pairs=pairs):
-        for pair in pairs:
-            sx, sy, _, _, d = pair
-            if dist(sx, sy, x, y) <= d:
+    def isCovered(p, pairs=pairs):
+        for (s, b, d) in pairs:
+            if MD2(s, p) <= d:
                 return True
         return False
 
-    for pair in pairs:
-        for (x, y) in followEdge(*pair[:-1]):
-            if minx <= x <= maxx and miny <= y <= maxy:
-                if not isCovered(x, y):
-                    return x*4000000+y
+    for (s, b, d) in pairs:
+        for p in followEdge(s, b):
+            if minx <= p.x <= maxx and miny <= p.y <= maxy:
+                if not isCovered(p):
+                    return p.x*4000000+y
 
     assert False
-
-def getLines(filename: str) -> list:
-    lines = []
-    with open(filename) as f:
-        for l in f:
-            l = l.rstrip('\n')
-            lines += [l]
-    return lines
 
 if __name__ == '__main__':
     import os.path

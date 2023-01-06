@@ -1,6 +1,7 @@
 import os
 import unittest
-from aoc.utils import get_data_file_path
+from aoc.utils import *
+
 from .prod import partA, partB, followEdge
 
 class DayTestCase(unittest.TestCase):
@@ -9,7 +10,8 @@ class DayTestCase(unittest.TestCase):
         self.assertEqual(partA(get_data_file_path('input.txt'), 2000000), 4737443)
 
     def testFollowEdge(self):
-        self.assertEqual(list(followEdge(5, 5, 5, 7)), [(2, 5), (3, 6), (4, 7), (5, 8), (6, 7), (7, 6), (8, 5), (7, 4), (6, 3), (5, 2), (4, 3), (3, 4)])
+        self.assertEqual(list(followEdge(V(5, 5), V(5, 7))),
+                        [V(2, 5), V(3, 6), V(4, 7), V(5, 8), V(6, 7), V(7, 6), V(8, 5), V(7, 4), V(6, 3), V(5, 2), V(4, 3), V(3, 4)])
 
     def testPartB(self):
         self.assertEqual(partB(get_data_file_path('sample.txt'), 0, 0, 20, 20), 56000011)

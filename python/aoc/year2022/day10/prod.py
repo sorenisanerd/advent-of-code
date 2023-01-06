@@ -1,3 +1,6 @@
+from typing import Any
+from aoc.utils import *
+
 def partA(filename: str) -> int:
     lines = getLines(filename)
     history = calculateHistory(lines)
@@ -8,7 +11,7 @@ def partA(filename: str) -> int:
 
     return counter
 
-def calculateHistory(lines):
+def calculateHistory(lines: list[str]):
     history = [1]
     for l in lines:
         args = l.split(' ')
@@ -21,9 +24,9 @@ def calculateHistory(lines):
         history += [history[-1] + int(val)]
     return history
 
-def partB(filename: str) -> int:
+def partB(filename: str) -> str:
     lines = getLines(filename)
-    history = calculateHistory(lines)
+    history: list[Any] = calculateHistory(lines)
 
     for h in range(len(history)):
         sprite_position = history[h]
@@ -38,16 +41,3 @@ def partB(filename: str) -> int:
         rv += [''.join(history[i:i+40])]
 
     return '\n'.join(rv)
-
-def getLines(filename: str) -> list:
-    lines = []
-    with open(filename) as f:
-        for l in f:
-            l = l.rstrip('\n')
-            lines += [l]
-    return lines
-
-if __name__ == '__main__':
-    import os.path
-    print(partA(get_data_file_path('input.txt')))
-    print(partB(get_data_file_path('input.txt')))

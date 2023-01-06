@@ -11,6 +11,3 @@ class DayTestCase(unittest.TestCase):
     def testPartB(self):
         self.assertEqual(partB(get_data_file_path('sample.txt')), 45000)
         self.assertEqual(partB(get_data_file_path('input.txt')), 206152)
-if __name__ == '__main__':
-    unittest.main()
-

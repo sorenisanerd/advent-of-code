@@ -6,8 +6,8 @@ def getScore(s: str) -> int:
 
 def partA(filename: str):
     return sum(getScore(set(comp1).intersection(comp2).pop())
-               for comp1, comp2 in [chunkCount(l.strip(), 2) for l in getLines(filename)])
+               for comp1, comp2 in [chunkByCount(l.strip(), 2) for l in getLines(filename)])
 
 def partB(filename: str) -> int:
     return sum(getScore(set(elf1).intersection(elf2).intersection(elf3).pop())
-               for elf1, elf2, elf3 in chunkSize(getLines(filename), 3))
+               for elf1, elf2, elf3 in chunkBySize(getLines(filename), 3))
