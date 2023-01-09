@@ -15,8 +15,8 @@ func PartA(filename string) int {
 			break
 		}
 		comps := aoc.ChunkByCount(l, 2)
-		s1 := aoc.NewSet("")
-		s2 := aoc.NewSet("")
+		s1 := aoc.NewSet("", aoc.Id[string])
+		s2 := aoc.NewSet("", aoc.Id[string])
 		for _, c := range comps[0] {
 			s1.Add(string(c))
 		}
@@ -33,9 +33,9 @@ func PartB(filename string) int {
 	data := string(aoc.Must(os.ReadFile, filename))
 	rv := 0
 	for _, l := range aoc.ChunkArrayBySize(strings.Split(data, "\n"), 3) {
-		dupe, _ := aoc.NewSet("").AddMany(strings.Split(l[0], "")).
-			Intersection(aoc.NewSet("").AddMany(strings.Split(l[1], ""))).
-			Intersection(aoc.NewSet("").AddMany(strings.Split(l[2], ""))).Pop()
+		dupe, _ := aoc.NewSet("", aoc.Id[string]).AddMany(strings.Split(l[0], "")).
+			Intersection(aoc.NewSet("", aoc.Id[string]).AddMany(strings.Split(l[1], ""))).
+			Intersection(aoc.NewSet("", aoc.Id[string]).AddMany(strings.Split(l[2], ""))).Pop()
 		rv += strings.Index(aoc.LowerAndUpperCaseLetters, dupe) + 1
 	}
 

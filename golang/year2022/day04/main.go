@@ -22,19 +22,19 @@ func PartAB(filename string) []int {
 		}
 		ints := aoc.ExtractInts(strings.ReplaceAll(l, "-", " "))
 
-		elf1 := aoc.NewSet("")
+		elf1 := aoc.NewSet("", aoc.Id[string])
 		for i := ints[0]; i <= ints[1]; i++ {
 			elf1.Add(fmt.Sprintf("%d", i))
 		}
 
-		elf2 := aoc.NewSet("")
+		elf2 := aoc.NewSet("", aoc.Id[string])
 		for i := ints[2]; i <= ints[3]; i++ {
 			elf2.Add(fmt.Sprintf("%d", i))
 		}
 		if elf1.IsSubSetOf(elf2) || elf2.IsSubSetOf(elf1) {
 			rvA++
 		}
-		if len(elf1.Intersection(elf2)) > 0 {
+		if elf1.Intersection(elf2).Len() > 0 {
 			rvB++
 		}
 	}

@@ -57,7 +57,7 @@ func (g *Grid[T]) InsideBounds(p V) bool {
 	return true
 }
 
-func (g *Grid[T]) AllPoints() chan V {
+func (g *Grid[T]) AllPoints() <-chan V {
 	ch := make(chan V)
 	dim := g.Dimensions()
 	go func(ch chan V) {

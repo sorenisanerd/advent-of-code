@@ -15,7 +15,7 @@ func PartAB(filename string, n int) int {
 	data := string(aoc.Must(os.ReadFile, filename))
 	for _, l := range strings.Split(data, "\n") {
 		for idx := n; idx < len(l); idx++ {
-			if len(aoc.NewSet("").AddMany(strings.Split(l[idx-n:idx], ""))) == n {
+			if aoc.NewSet("", aoc.Id[string]).AddMany(strings.Split(l[idx-n:idx], "")).Len() == n {
 				return idx
 			}
 		}

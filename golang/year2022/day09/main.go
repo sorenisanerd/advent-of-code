@@ -25,6 +25,10 @@ func PartA(filename string) int {
 	return PartAB(filename, 2)
 }
 
+func String[T any](v T) string {
+	return fmt.Sprintf("%v", v)
+}
+
 func PartAB(filename string, knotCount int) int {
 	var moves []move
 	data := string(aoc.Must(os.ReadFile, filename))
@@ -49,18 +53,18 @@ func PartAB(filename string, knotCount int) int {
 		return tail
 	}
 
-	seenPositions := aoc.NewSet("")
-	seenPositions.Add(fmt.Sprintf("%v", aoc.V{0, 0}))
+	seenPositions := aoc.NewSet(aoc.V{0, 0}, String[aoc.V])
+	seenPositions.Add(aoc.V{0, 0})
 	for _, move := range moves {
 		for i := 0; i < move.count; i++ {
 			knots[0] = moveFunc(knots[0], move.dir)
 			for j := 1; j < knotCount; j++ {
 				knots[j] = trackFunc(knots[j-1], knots[j])
 			}
-			seenPositions.Add(fmt.Sprintf("%v", aoc.GetByIdx(knots, -1)))
+			seenPositions.Add(aoc.GetByIdx(knots, -1))
 		}
 	}
-	return len(seenPositions)
+	return seenPositions.Len()
 }
 
 func PartB(filename string) int {
