@@ -1,7 +1,6 @@
 package day08
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -21,7 +20,7 @@ func PartA(filename string) int {
 
 func parseGrid(filename string) aoc.Grid[int] {
 	data := string(aoc.Must(os.ReadFile, filename))
-	grid := aoc.NewGrid[int](func(r rune) int { return aoc.Atoi(string(r)) })
+	grid := aoc.NewGrid(func(r rune) int { return aoc.Atoi(string(r)) })
 	for _, l := range strings.Split(data, "\n") {
 		grid.AddLine(l)
 	}
@@ -72,11 +71,9 @@ func PartB(filename string) int {
 		t := 1
 		for _, d := range aoc.FourDirections {
 			sf := scenicFactor(grid, p, d)
-			fmt.Println(sf)
 			t *= sf
 		}
 		if t > rv {
-			fmt.Println(p, t)
 			rv = t
 		}
 	}

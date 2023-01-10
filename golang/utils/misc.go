@@ -39,10 +39,14 @@ func ChunkArrayBySize(s []string, size int) [][]string {
 	return rv
 }
 
-func ChunkBySize[T string](s T, size int) []T {
-	rv := []T{}
+func ChunkBySize[T any](s []T, size int) [][]T {
+	rv := [][]T{}
 	for i := 0; i < len(s); i += size {
-		rv = append(rv, s[i:i+size])
+		low, high := i, i+size
+		if high > len(s) {
+			high = len(s)
+		}
+		rv = append(rv, s[low:high])
 	}
 	return rv
 }

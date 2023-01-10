@@ -1,8 +1,30 @@
 #!/bin/sh
-day=$1
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 year day"
+    exit 1
+fi
 
-echo "Starting day $day"
-mkdir -p day$day/{python,data}
+year=$1
+day="$2"
+paddedDay="$(printf %02d $2)"
 
-cp -r template/* day$day/
-git add day$day
+echo "Starting day $year/12/$day"
+pydir=python/aoc/year$year/day$day
+godir=golang/year$year/day$day
+if [ -d $pydir ]; then
+    echo "Directory $pydir already exists"
+else
+    mkdir -p $pydir
+    cp -r python/_template/*.py $pydir
+    sed -e "s#ayXX#ay${paddedDay}#" -i '' $godir/*
+    git add $pydir
+fi
+
+if [ -d $godir ]; then
+    echo "Directory $godir already exists"
+else
+    mkdir -p $godir
+    cp -r golang/_template/*.go $godir
+    sed -e "s#ayXX#ay${paddedDay}#" -i '' $godir/*
+    git add $godir
+fi
