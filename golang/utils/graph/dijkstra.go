@@ -59,7 +59,6 @@ func Dijkstra[T any](starts []T, goal T, getNeighbors getNeighborFunc[T]) (dist 
 		}
 
 		if visited.Contains(*vertex) {
-			fmt.Println("Already visited", *vertex)
 			continue
 		}
 

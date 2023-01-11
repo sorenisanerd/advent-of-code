@@ -27,7 +27,7 @@ func parseGrid(filename string) aoc.Grid[int] {
 	return grid
 }
 
-func isVisible(grid aoc.Grid[int], p aoc.V) bool {
+func isVisible(grid aoc.Grid[int], p aoc.V2) bool {
 	t := grid.Get(p)
 	dim := grid.Dimensions()
 	for _, d := range aoc.FourDirections {
@@ -45,7 +45,7 @@ func isVisible(grid aoc.Grid[int], p aoc.V) bool {
 	return false
 }
 
-func scenicFactor(grid aoc.Grid[int], p aoc.V, dir aoc.V) int {
+func scenicFactor(grid aoc.Grid[int], p aoc.V2, dir aoc.V2) int {
 	rv := 0
 	t := grid.Get(p)
 	for {

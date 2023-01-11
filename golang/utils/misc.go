@@ -1,6 +1,9 @@
 package utils
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 // Extract all numbers from a string.
 func ExtractInts(s string) []int {
@@ -21,6 +24,10 @@ func Must[OT any, IT any](f func(IT) (OT, error), arg IT) OT {
 		panic(err)
 	}
 	return rv
+}
+
+func SplitLines(s string) []string {
+	return strings.Split(s, "\n")
 }
 
 const LowerCaseLetters = `abcdefghijklmnopqrstuvwxyz`
@@ -130,4 +137,44 @@ func All[T any](f func(T) bool, s []T) bool {
 		}
 	}
 	return true
+}
+
+type ChooseOneTuple[T any] struct {
+	Val  T   // car
+	Rest []T // cdr
+}
+
+func ChooseOneGenerator[T any](l []T) <-chan ChooseOneTuple[T] {
+	ch := make(chan ChooseOneTuple[T])
+	go func(l []T, ch chan ChooseOneTuple[T]) {
+		for i := 0; i < len(l); i++ {
+			car := l[i]
+			cdr := make([]T, len(l)-1)
+			for j := 0; j < i; j++ {
+				cdr[j] = l[j]
+			}
+			for j := i; j < len(l)-1; j++ {
+				cdr[j] = l[j+1]
+			}
+			ch <- ChooseOneTuple[T]{car, cdr}
+		}
+		close(ch)
+	}(l, ch)
+	return ch
+}
+
+func ChooseOne[T any](l []T) []ChooseOneTuple[T] {
+	rv := make([]ChooseOneTuple[T], len(l))
+	for i := 0; i < len(l); i++ {
+		car := l[i]
+		cdr := make([]T, len(l)-1)
+		for j := 0; j < i; j++ {
+			cdr[j] = l[j]
+		}
+		for j := i; j < len(l)-1; j++ {
+			cdr[j] = l[j+1]
+		}
+		rv[i] = ChooseOneTuple[T]{car, cdr}
+	}
+	return rv
 }

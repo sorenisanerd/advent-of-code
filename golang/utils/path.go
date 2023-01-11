@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -15,6 +16,15 @@ func LoadData(fname string) string {
 	return string(Must(os.ReadFile, fname))
 }
 
+func GetDataDirSubPath(year, day int) string {
+	return fmt.Sprintf("%04d/%02d", year, day)
+}
+
+func GetTopDir() string {
+	_, filename, _, _ := runtime.Caller(0)
+	return Must(filepath.Abs, filepath.Dir(filename)+"/../../")
+}
+
 func GetCallerDataDir() string {
 	var elems []string
 	var filename string
@@ -26,9 +36,9 @@ func GetCallerDataDir() string {
 		}
 	}
 
-	y := elems[len(elems)-3][4:]
-	d := elems[len(elems)-2][3:]
-	p, err := filepath.Abs(filepath.Dir(filename) + "/../../../data/" + y + "/" + d)
+	y := Atoi(elems[len(elems)-3][4:])
+	d := Atoi(elems[len(elems)-2][3:])
+	p, err := filepath.Abs(filepath.Dir(filename) + "/../../../data/" + GetDataDirSubPath(y, d))
 	if err != nil {
 		panic(err)
 	}

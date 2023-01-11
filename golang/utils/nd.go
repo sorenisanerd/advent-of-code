@@ -1,8 +1,8 @@
 package utils
 
+// These are n-dimensional vectors. They are much slower than
+// their 2D counterparts, so use those if you can.
 type V []int
-
-var FourDirections = []V{{1, 0}, {0, 1}, {-1, 0}, {0, -1}}
 
 func (v V) AddInt(i int) V {
 	rv := make([]int, len(v))

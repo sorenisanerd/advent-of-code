@@ -8,7 +8,7 @@ import (
 	aoc "github.com/sorenisanerd/adventofcode/utils"
 )
 
-type V = aoc.V
+type V = aoc.V2
 
 type move struct {
 	dir   string
@@ -38,23 +38,23 @@ func PartAB(filename string, knotCount int) int {
 		moves = append(moves, move{dir, count})
 	}
 
-	knots := []aoc.V{}
+	knots := []V{}
 	for i := 0; i < knotCount; i++ {
-		knots = append(knots, aoc.V{0, 0})
+		knots = append(knots, V{0, 0})
 	}
 
-	moveFunc := func(p aoc.V, move string) aoc.V {
+	moveFunc := func(p V, move string) V {
 		return p.AddV(moveDir[move])
 	}
-	trackFunc := func(head, tail aoc.V) aoc.V {
+	trackFunc := func(head, tail V) V {
 		if aoc.Abs(head[0]-tail[0]) > 1 || aoc.Abs(head[1]-tail[1]) > 1 {
-			return tail.AddV(aoc.V{aoc.Sign(head[0] - tail[0]), aoc.Sign(head[1] - tail[1])})
+			return tail.AddV(V{aoc.Sign(head[0] - tail[0]), aoc.Sign(head[1] - tail[1])})
 		}
 		return tail
 	}
 
-	seenPositions := aoc.NewSet(aoc.V{0, 0}, String[aoc.V])
-	seenPositions.Add(aoc.V{0, 0})
+	seenPositions := aoc.NewSet(V{0, 0}, aoc.Id[V])
+	seenPositions.Add(V{0, 0})
 	for _, move := range moves {
 		for i := 0; i < move.count; i++ {
 			knots[0] = moveFunc(knots[0], move.dir)

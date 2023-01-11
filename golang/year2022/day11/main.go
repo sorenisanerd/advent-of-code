@@ -1,7 +1,6 @@
 package day11
 
 import (
-	"fmt"
 	"os"
 	"sort"
 	"strings"
@@ -104,10 +103,6 @@ func PartB(filename string) int {
 	modulo := aoc.Reduce(func(a int, b monkey) int { return a * b.divisibleBy }, monkeys, 1)
 	for i := 0; i < 10000; i++ {
 		round(monkeys, 1, modulo)
-		if (i+1)%1000 == 0 {
-			fmt.Println(i + 1)
-			fmt.Println(aoc.Map(func(m monkey) int { return m.visitCount }, monkeys))
-		}
 	}
 
 	counts := aoc.Map(func(m monkey) int { return m.visitCount }, monkeys)

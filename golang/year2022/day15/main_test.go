@@ -1,4 +1,4 @@
-package day01
+package day15
 
 import (
 	"testing"
@@ -6,17 +6,17 @@ import (
 	aoc "github.com/sorenisanerd/adventofcode/utils"
 )
 
-func Test_Day01(t *testing.T) {
+func TestDay15(t *testing.T) {
 	tests := []struct {
 		name     string
 		f        func(string) int
 		filename string
 		want     int
 	}{
-		{"A:Sample", PartA, "sample.txt", 24000},
-		{"A:Input", PartA, "input.txt", 69528},
-		{"B:Sample", PartB, "sample.txt", 45000},
-		{"B:Input", PartB, "input.txt", 206152},
+		{"A:Sample", PartA, "sample.txt", 26},
+		{"A:Input", PartA, "input.txt", 4737443},
+		{"B:Sample", PartB, "sample.txt", 56000011},
+		{"B:Input", PartB, "input.txt", 11482462818989},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

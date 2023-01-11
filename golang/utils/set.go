@@ -100,6 +100,12 @@ func (s Set[T, U]) Len() int {
 	return len(s.dict)
 }
 
+func (s Set[T, U]) Apply(f func(*T)) {
+	for k := range s.dict {
+		f(s.dict[k])
+	}
+}
+
 // ID is a helper function that returns its argument.
 // It's handy for passing to NewSet when Set[T] already
 // is comparable.

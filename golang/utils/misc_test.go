@@ -59,3 +59,34 @@ func TestGetPrefixes(t *testing.T) {
 		})
 	}
 }
+
+func TestChooseOne(t *testing.T) {
+	tests := []struct {
+		name  string
+		input []int
+		want  []ChooseOneTuple[int]
+	}{
+		{"Empty", []int{}, []ChooseOneTuple[int]{}},
+		{"One element", []int{1}, []ChooseOneTuple[int]{{1, []int{}}}},
+		{"Two elements", []int{1, 2}, []ChooseOneTuple[int]{
+			{1, []int{2}},
+			{2, []int{1}},
+		}},
+		{"Three elements", []int{1, 2, 3}, []ChooseOneTuple[int]{
+			{1, []int{2, 3}},
+			{2, []int{1, 3}},
+			{3, []int{1, 2}},
+		}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := []ChooseOneTuple[int]{}
+			for t := range ChooseOneGenerator(tt.input) {
+				l = append(l, t)
+			}
+			if got := l; !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ChooseOne() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -1,7 +1,6 @@
 package day04
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -20,21 +19,14 @@ func PartAB(filename string) []int {
 		if len(strings.TrimSpace(l)) < 1 {
 			break
 		}
+
 		ints := aoc.ExtractInts(strings.ReplaceAll(l, "-", " "))
-
-		elf1 := aoc.NewSet("", aoc.Id[string])
-		for i := ints[0]; i <= ints[1]; i++ {
-			elf1.Add(fmt.Sprintf("%d", i))
-		}
-
-		elf2 := aoc.NewSet("", aoc.Id[string])
-		for i := ints[2]; i <= ints[3]; i++ {
-			elf2.Add(fmt.Sprintf("%d", i))
-		}
-		if elf1.IsSubSetOf(elf2) || elf2.IsSubSetOf(elf1) {
+		if (ints[0] <= ints[2]) && (ints[2] <= ints[3]) && (ints[3] <= ints[1]) ||
+			(ints[2] <= ints[0]) && (ints[0] <= ints[1]) && (ints[1] <= ints[3]) {
 			rvA++
 		}
-		if elf1.Intersection(elf2).Len() > 0 {
+
+		if !(ints[1] < ints[2]) && !(ints[3] < ints[0]) {
 			rvB++
 		}
 	}
