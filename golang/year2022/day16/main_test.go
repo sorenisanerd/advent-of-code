@@ -13,9 +13,9 @@ func TestDay16(t *testing.T) {
 		filename string
 		want     int
 	}{
-		//		{"A:Sample", PartA, "sample.txt", 1651},
-		//	{"A:Input", PartA, "input.txt", 1701},
-		//	{"B:Sample", PartB, "sample.txt", 1707},
+		{"A:Sample", PartA, "sample.txt", 1651},
+		{"A:Input", PartA, "input.txt", 1701},
+		{"B:Sample", PartB, "sample.txt", 1707},
 		{"B:Input", PartB, "input.txt", 2455},
 	}
 	for _, tt := range tests {

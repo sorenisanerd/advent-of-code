@@ -145,6 +145,9 @@ type ChooseOneTuple[T any] struct {
 }
 
 func ChooseOneCallBack[T any](l []T, f func(T, []T)) {
+	if len(l) == 0 {
+		return
+	}
 	var cdr = make([]T, len(l)-1)
 	for i := 0; i < len(l); i++ {
 		for j := 0; j < i; j++ {
