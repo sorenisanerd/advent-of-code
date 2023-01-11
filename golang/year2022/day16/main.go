@@ -1,9 +1,9 @@
 package day16
 
 import (
-	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	aoc "github.com/sorenisanerd/adventofcode/utils"
@@ -21,27 +21,27 @@ type valve struct {
 var cache1 = make(map[string]int)
 var cache2 = make(map[string]int)
 
-func dfs2(curPos valve, rest []valve, dm DistanceMatrix[string], timeRemaining int) int {
-	k := fmt.Sprintf("%s:%v:%d", curPos.name, rest, timeRemaining)
+func dfs2(V map[string]valve, curPos string, rest []string, dm DistanceMatrix[string], timeRemaining int) int {
+	k := curPos + strings.Join(rest, "") + strconv.Itoa(timeRemaining)
 	if v, ok := cache2[k]; ok {
 		return v
 	}
 
 	if timeRemaining == 0 {
-		return dfs("AA", rest, dm, 26)
+		return dfs(V, "AA", rest, dm, 26)
 	}
 
 	// How much the elephant will be able to do
-	elephant := dfs("AA", rest, dm, 26)
+	elephant := dfs(V, "AA", rest, dm, 26)
 
 	rv := elephant
 
 	for t := range aoc.ChooseOneGenerator(rest) {
 		next := t.Val
-		dist := dm.Get(curPos.name, next.name)
+		dist := dm.Get(curPos, next)
 		if dist < (timeRemaining - 1) {
-			this := (timeRemaining - dist - 1) * next.rate
-			res := dfs2(next, t.Rest, dm, timeRemaining-dist-1)
+			this := (timeRemaining - dist - 1) * V[next].rate
+			res := dfs2(V, next, t.Rest, dm, timeRemaining-dist-1)
 			if (this + res) > rv {
 				rv = this + res
 			}
@@ -52,8 +52,8 @@ func dfs2(curPos valve, rest []valve, dm DistanceMatrix[string], timeRemaining i
 	return rv
 }
 
-func dfs(curPos string, rest []valve, dm DistanceMatrix[string], timeRemaining int) int {
-	k := fmt.Sprint(curPos, rest, timeRemaining)
+func dfs(V map[string]valve, curPos string, rest []string, dm DistanceMatrix[string], timeRemaining int) int {
+	k := curPos + strings.Join(rest, "") + strconv.Itoa(timeRemaining)
 	if v, ok := cache1[k]; ok {
 		return v
 	}
@@ -61,10 +61,10 @@ func dfs(curPos string, rest []valve, dm DistanceMatrix[string], timeRemaining i
 
 	for t := range aoc.ChooseOneGenerator(rest) {
 		next := t.Val
-		dist := dm.Get(curPos, next.name)
+		dist := dm.Get(curPos, next)
 		if dist < (timeRemaining - 1) {
-			this := (timeRemaining - dist - 1) * next.rate
-			r := dfs(next.name, t.Rest, dm, timeRemaining-dist-1)
+			this := (timeRemaining - dist - 1) * V[next].rate
+			r := dfs(V, next, t.Rest, dm, timeRemaining-dist-1)
 			if (this + r) > rv {
 				rv = this + r
 			}
@@ -144,7 +144,7 @@ func PartA(filename string) int {
 
 	FloydWarshall(dm)
 
-	return dfs("AA", aoc.Filter(func(v valve) bool { return v.rate > 0 }, aoc.Map(func(s string) valve { return valves[s] }, keys)), dm, 30)
+	return dfs(valves, "AA", aoc.Filter(func(v string) bool { return valves[v].rate > 0 }, keys), dm, 30)
 }
 
 func getValves(data string) map[string]valve {
@@ -182,10 +182,8 @@ func PartB(filename string) int {
 
 	FloydWarshall(dm)
 
-	return dfs2(valves["AA"],
-		aoc.Filter(func(v valve) bool {
-			return v.rate > 0
-		}, aoc.Map(func(s string) valve {
-			return valves[s]
-		}, keys)), dm, 26)
+	return dfs2(valves, "AA",
+		aoc.Filter(func(v string) bool {
+			return valves[v].rate > 0
+		}, keys), dm, 26)
 }

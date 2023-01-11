@@ -147,9 +147,10 @@ type ChooseOneTuple[T any] struct {
 func ChooseOneGenerator[T any](l []T) <-chan ChooseOneTuple[T] {
 	ch := make(chan ChooseOneTuple[T])
 	go func(l []T, ch chan ChooseOneTuple[T]) {
+		var cdr []T
 		for i := 0; i < len(l); i++ {
 			car := l[i]
-			cdr := make([]T, len(l)-1)
+			cdr = make([]T, len(l)-1)
 			for j := 0; j < i; j++ {
 				cdr[j] = l[j]
 			}
