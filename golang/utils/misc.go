@@ -144,6 +144,19 @@ type ChooseOneTuple[T any] struct {
 	Rest []T // cdr
 }
 
+func ChooseOneCallBack[T any](l []T, f func(T, []T)) {
+	var cdr = make([]T, len(l)-1)
+	for i := 0; i < len(l); i++ {
+		for j := 0; j < i; j++ {
+			cdr[j] = l[j]
+		}
+		for j := i; j < len(l)-1; j++ {
+			cdr[j] = l[j+1]
+		}
+		f(l[i], cdr)
+	}
+}
+
 func ChooseOneGenerator[T any](l []T) <-chan ChooseOneTuple[T] {
 	ch := make(chan ChooseOneTuple[T])
 	go func(l []T, ch chan ChooseOneTuple[T]) {

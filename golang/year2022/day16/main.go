@@ -36,17 +36,16 @@ func dfs2(V map[string]valve, curPos string, rest []string, dm DistanceMatrix[st
 
 	rv := elephant
 
-	for t := range aoc.ChooseOneGenerator(rest) {
-		next := t.Val
+	aoc.ChooseOneCallBack(rest, func(next string, next_rest []string) {
 		dist := dm.Get(curPos, next)
 		if dist < (timeRemaining - 1) {
 			this := (timeRemaining - dist - 1) * V[next].rate
-			res := dfs2(V, next, t.Rest, dm, timeRemaining-dist-1)
+			res := dfs2(V, next, next_rest, dm, timeRemaining-dist-1)
 			if (this + res) > rv {
 				rv = this + res
 			}
 		}
-	}
+	})
 
 	cache2[k] = rv
 	return rv
@@ -59,17 +58,16 @@ func dfs(V map[string]valve, curPos string, rest []string, dm DistanceMatrix[str
 	}
 	rv := 0
 
-	for t := range aoc.ChooseOneGenerator(rest) {
-		next := t.Val
+	aoc.ChooseOneCallBack(rest, func(next string, next_rest []string) {
 		dist := dm.Get(curPos, next)
 		if dist < (timeRemaining - 1) {
 			this := (timeRemaining - dist - 1) * V[next].rate
-			r := dfs(V, next, t.Rest, dm, timeRemaining-dist-1)
+			r := dfs(V, next, next_rest, dm, timeRemaining-dist-1)
 			if (this + r) > rv {
 				rv = this + r
 			}
 		}
-	}
+	})
 
 	cache1[k] = rv
 	return rv
