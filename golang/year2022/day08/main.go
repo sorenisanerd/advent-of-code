@@ -18,16 +18,17 @@ func PartA(filename string) int {
 	return rv
 }
 
-func parseGrid(filename string) aoc.Grid[int] {
+func parseGrid(filename string) aoc.DynamicGrid[int] {
 	data := string(aoc.Must(os.ReadFile, filename))
-	grid := aoc.NewGrid(func(r rune) int { return aoc.Atoi(string(r)) })
+	grid := aoc.NewDynamicGrid(0)
+	//	, func(r rune) int { return aoc.Atoi(string(r)) })
 	for _, l := range strings.Split(data, "\n") {
-		grid.AddLine(l)
+		grid.AddRow(aoc.Map(aoc.Atoi, strings.Split(l, "")))
 	}
 	return grid
 }
 
-func isVisible(grid aoc.Grid[int], p aoc.V2) bool {
+func isVisible(grid aoc.DynamicGrid[int], p aoc.V2) bool {
 	t := grid.Get(p)
 	dim := grid.Dimensions()
 	for _, d := range aoc.FourDirections {
@@ -45,7 +46,7 @@ func isVisible(grid aoc.Grid[int], p aoc.V2) bool {
 	return false
 }
 
-func scenicFactor(grid aoc.Grid[int], p aoc.V2, dir aoc.V2) int {
+func scenicFactor(grid aoc.DynamicGrid[int], p aoc.V2, dir aoc.V2) int {
 	rv := 0
 	t := grid.Get(p)
 	for {

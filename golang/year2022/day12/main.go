@@ -9,11 +9,9 @@ import (
 	"github.com/sorenisanerd/adventofcode/utils/graph"
 )
 
-func getGrid(filename string) (aoc.Grid[int], []aoc.V2, aoc.V2) {
+func getGrid(filename string) (aoc.DynamicGrid[int], []aoc.V2, aoc.V2) {
 	data := string(aoc.Must(os.ReadFile, filename))
-	grid := aoc.NewGrid(func(c rune) int {
-		return int(strings.ReplaceAll(strings.ReplaceAll(string(c), "S", "a"), "E", "z")[0])
-	})
+	grid := aoc.NewDynamicGrid(0)
 	starts := []aoc.V2{}
 	goal := aoc.V2{}
 	for y, l := range strings.Split(data, "\n") {
@@ -23,13 +21,19 @@ func getGrid(filename string) (aoc.Grid[int], []aoc.V2, aoc.V2) {
 		if x := strings.Index(l, "E"); x != -1 {
 			goal = aoc.V2{x, y}
 		}
-		grid.AddLine(l)
+		grid.AddRow(
+			aoc.Map(func(s string) int {
+				return int(
+					strings.ReplaceAll(
+						strings.ReplaceAll(s, "S", "a"),
+						"E", "z")[0])
+			}, strings.Split(l, "")))
 	}
 
 	return grid, starts, goal
 }
 
-func getGetNeighbors(grid aoc.Grid[int]) func(aoc.V2) []graph.NeighborAndCost[aoc.V2] {
+func getGetNeighbors(grid aoc.DynamicGrid[int]) func(aoc.V2) []graph.NeighborAndCost[aoc.V2] {
 	return func(p aoc.V2) []graph.NeighborAndCost[aoc.V2] {
 		cur := grid.Get(p)
 

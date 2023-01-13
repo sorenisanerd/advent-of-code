@@ -70,7 +70,7 @@ func PartA(filename string) int {
 	rv := 0
 	data := string(aoc.Must(os.ReadFile, filename))
 	idx := 1
-	for _, lines := range aoc.ChunkBySize(strings.Split(data, "\n"), 3) {
+	for _, lines := range aoc.ChunkBySliceSize(strings.Split(data, "\n"), 3) {
 		// -1 means they are in correct order
 		if r := cmp(parseLine(lines[0]), parseLine(lines[1])); r < 0 {
 			rv += idx

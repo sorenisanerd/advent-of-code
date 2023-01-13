@@ -31,7 +31,7 @@ func loadMap(filename string) (map[aoc.V2]rune, int) {
 		points := aoc.ExtractInts(l)
 
 		cur := aoc.V2{points[0], points[1]}
-		for _, p := range aoc.ChunkBySize(points[2:], 2) {
+		for _, p := range aoc.ChunkBySliceSize(points[2:], 2) {
 			if p[1] > maxy {
 				maxy = p[1]
 			}

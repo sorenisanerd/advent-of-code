@@ -16,10 +16,10 @@ import (
 	day12 "github.com/sorenisanerd/adventofcode/year2022/day12"
 	day13 "github.com/sorenisanerd/adventofcode/year2022/day13"
 	day14 "github.com/sorenisanerd/adventofcode/year2022/day14"
+	day15 "github.com/sorenisanerd/adventofcode/year2022/day15"
+	day16 "github.com/sorenisanerd/adventofcode/year2022/day16"
+	day17 "github.com/sorenisanerd/adventofcode/year2022/day17"
 	/*
-	   day15 "github.com/sorenisanerd/adventofcode/year2022/day15"
-	   day16 "github.com/sorenisanerd/adventofcode/year2022/day16"
-	   day17 "github.com/sorenisanerd/adventofcode/year2022/day17"
 	   day18 "github.com/sorenisanerd/adventofcode/year2022/day18"
 	   day19 "github.com/sorenisanerd/adventofcode/year2022/day19"
 	   day20 "github.com/sorenisanerd/adventofcode/year2022/day20"
@@ -44,10 +44,10 @@ func init() {
 	utils.RegisterDay(2022, 12, day12.PartA, day12.PartB)
 	utils.RegisterDay(2022, 13, day13.PartA, day13.PartB)
 	utils.RegisterDay(2022, 14, day14.PartA, day14.PartB)
+	utils.RegisterDay(2022, 15, day15.PartA, day15.PartB)
+	utils.RegisterDay(2022, 16, day16.PartA, day16.PartB)
+	utils.RegisterDay(2022, 17, day17.PartA, day17.PartB)
 	/*
-	   utils.RegisterDay(2022, 15, day15.PartA, day15.PartB)
-	   utils.RegisterDay(2022, 16, day16.PartA, day16.PartB)
-	   utils.RegisterDay(2022, 17, day17.PartA, day17.PartB)
 	   utils.RegisterDay(2022, 18, day18.PartA, day18.PartB)
 	   utils.RegisterDay(2022, 19, day19.PartA, day19.PartB)
 	   utils.RegisterDay(2022, 20, day20.PartA, day20.PartB)

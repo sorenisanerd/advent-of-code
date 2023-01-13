@@ -56,14 +56,12 @@ func ChunkBySliceSize[T any](s []T, size int) [][]T {
 // ChunkByTotalCount splits a slice into a slice of count
 // slices. If the slice cannot be split evenly, the last
 // slice will be truncated.
-// Size, count, output:
-// 1, 1, 1
-// 1, 2, 1
 func ChunkByTotalCount[T any](s []T, count int) [][]T {
 	rv := make([][]T, count)
 	size := len(s) / count
 	if len(s)%count != 0 {
-		panic(fmt.Sprintf("ChunkByTotalCount(s []%T, %d) called, bu len(s) = %d, and %d %% %d = %d", s[0], count, len(s), len(s), count, len(s)%count))
+		panic(fmt.Sprintf("ChunkByTotalCount(s []%T, %d) called, but len(s) = %d, and %d %% %d = %d",
+			s[0], count, len(s), len(s), count, len(s)%count))
 	}
 	for i := 0; i < count; i++ {
 		low, high := i*size, (i+1)*size

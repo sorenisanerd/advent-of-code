@@ -14,7 +14,7 @@ func PartA(filename string) int {
 		if len(strings.TrimSpace(l)) < 1 {
 			break
 		}
-		comps := aoc.ChunkByTotalCount(l, 2)
+		comps := aoc.ChunkByTotalCount(strings.Split(l, ""), 2)
 		s1 := aoc.NewSet("", aoc.Id[string])
 		s2 := aoc.NewSet("", aoc.Id[string])
 		for _, c := range comps[0] {
