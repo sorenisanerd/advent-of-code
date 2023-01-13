@@ -30,6 +30,10 @@ func GetCallerDataDir() string {
 	var filename string
 	for i := 0; i <= 10; i++ {
 		_, filename, _, _ = runtime.Caller(i)
+		if filename == "" {
+			panic("Could not find caller data dir")
+		}
+
 		elems = strings.Split(filename, "/")
 		if strings.HasPrefix(elems[len(elems)-3], "year") {
 			break

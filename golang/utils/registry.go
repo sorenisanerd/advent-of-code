@@ -1,7 +1,6 @@
 package utils
 
 type partFunc func(string) any
-type genericPartFunc[T any] func(string) T
 
 type Day struct {
 	Year  int
@@ -23,6 +22,11 @@ func buildPartFunc(pf any) partFunc {
 }
 
 func RegisterDay(year, d int, partA, partB any) {
-	dd := Day{Year: year, Day: d, PartA: buildPartFunc(partA), PartB: buildPartFunc(partB)}
+	dd := Day{
+		Year:  year,
+		Day:   d,
+		PartA: buildPartFunc(partA),
+		PartB: buildPartFunc(partB),
+	}
 	Registry = append(Registry, dd)
 }

@@ -6,6 +6,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAll3DAdjecencies(t *testing.T) {
+	dirSet := NewSet(V3{0, 0}, Id[V3])
+	for _, d := range All3DAdjecencies {
+		dirSet.Add(d)
+	}
+	assert.Equal(t, 26, dirSet.Len(), "All3DAdjecencies should have 26 directions")
+	assert.False(t, dirSet.Contains(V3{0, 0, 0}), "V{0,0,0} should not be in All3DAdjecencies")
+}
+
 func TestV3Equality(t *testing.T) {
 	tests := []struct {
 		v1, v2 V3

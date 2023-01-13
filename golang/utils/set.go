@@ -106,7 +106,7 @@ func (s Set[T, U]) Apply(f func(*T)) {
 	}
 }
 
-// ID is a helper function that returns its argument.
+// Id is a helper function that returns its argument.
 // It's handy for passing to NewSet when Set[T] already
 // is comparable.
 func Id[T any](x T) T {

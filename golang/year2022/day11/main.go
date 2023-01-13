@@ -36,7 +36,7 @@ func calculateMonkeyBusiness(monkeys []monkey) int {
 func parseMonkeys(filename string) []monkey {
 	data := string(aoc.Must(os.ReadFile, filename))
 	monkeys := []monkey{}
-	for _, ls := range aoc.ChunkArrayBySize(strings.Split(data, "\n"), 7) {
+	for _, ls := range aoc.ChunkBySliceSize(strings.Split(data, "\n"), 7) {
 		if len(ls) != 7 {
 			continue
 		}

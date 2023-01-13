@@ -38,7 +38,7 @@ func (pq *PriorityQueue[T]) Pop() *T {
 }
 
 // Note the difference between priorityQueue and PriorityQueue!
-// priorityQueue is for the heap implementation, PriorityQueue is for the user.
+// priorityQueue is for the heap implementation, PriorityQueue is for the end user.
 
 type priorityQueue[T any] struct {
 	q           []*T

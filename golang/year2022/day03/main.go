@@ -14,7 +14,7 @@ func PartA(filename string) int {
 		if len(strings.TrimSpace(l)) < 1 {
 			break
 		}
-		comps := aoc.ChunkByCount(l, 2)
+		comps := aoc.ChunkByTotalCount(l, 2)
 		s1 := aoc.NewSet("", aoc.Id[string])
 		s2 := aoc.NewSet("", aoc.Id[string])
 		for _, c := range comps[0] {
@@ -32,7 +32,7 @@ func PartA(filename string) int {
 func PartB(filename string) int {
 	data := string(aoc.Must(os.ReadFile, filename))
 	rv := 0
-	for _, l := range aoc.ChunkArrayBySize(strings.Split(data, "\n"), 3) {
+	for _, l := range aoc.ChunkBySliceSize(strings.Split(data, "\n"), 3) {
 		dupe, _ := aoc.NewSet("", aoc.Id[string]).AddMany(strings.Split(l[0], "")).
 			Intersection(aoc.NewSet("", aoc.Id[string]).AddMany(strings.Split(l[1], ""))).
 			Intersection(aoc.NewSet("", aoc.Id[string]).AddMany(strings.Split(l[2], ""))).Pop()

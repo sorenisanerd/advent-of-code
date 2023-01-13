@@ -28,7 +28,6 @@ func TestSetBasic(t *testing.T) {
 	assert.True(t, s.Contains("foo"), "Set did not contain added element")
 	assert.True(t, s.Contains("bar"), "Set did not contain added element")
 	assert.True(t, s.Contains("baz"), "Set did not contain added element")
-
 }
 
 func TestIntersection(t *testing.T) {
@@ -70,4 +69,22 @@ func TestIsSubSet(t *testing.T) {
 	s2 := NewSet("", Id[string]).AddMany([]string{"foo", "bar", "baz"})
 	assert.True(t, s1.IsSubSetOf(s2), "s1 was not a subset of s2")
 	assert.False(t, s2.IsSubSetOf(s1), "s2 was a subset of s1")
+}
+
+func TestApply(t *testing.T) {
+	s1 := NewSet("", Id[string]).AddMany([]string{"foo", "bar", "baz"})
+	s2 := NewSet("", Id[string]).AddMany([]string{"foo", "bar", "baz"})
+
+	assert.Equal(t, 3, s1.Len())
+	assert.Equal(t, 3, s2.Len())
+
+	s1.Apply(func(s *string) { s2.Remove(*s) })
+	assert.Equal(t, 3, s1.Len())
+	assert.Equal(t, 0, s2.Len())
+
+	s2 = NewSet("", Id[string]).AddMany([]string{"foo", "bar", "baz"})
+	s2.Apply(func(s *string) {
+		s2.Remove(*s)
+	})
+	assert.Equal(t, 0, s2.Len())
 }
