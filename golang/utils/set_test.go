@@ -3,6 +3,7 @@ package utils
 import (
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,6 +29,31 @@ func TestSetBasic(t *testing.T) {
 	assert.True(t, s.Contains("foo"), "Set did not contain added element")
 	assert.True(t, s.Contains("bar"), "Set did not contain added element")
 	assert.True(t, s.Contains("baz"), "Set did not contain added element")
+
+}
+
+func TestSetEquality(t *testing.T) {
+	s := NewSetFromComparableSlice([]string{"foo", "bar", "baz"})
+	assert.True(t, s.Equal(s), "Set did not equal itself. That's pretty messed up.")
+	assert.True(t,
+		NewSetFromComparableSlice([]string{"foo", "baz"}).Equal(
+			NewSetFromComparableSlice([]string{"baz", "foo"})),
+		"Set did not equal an identical set.")
+	assert.False(t,
+		NewSetFromComparableSlice([]string{"foo", "bar"}).Equal(
+			NewSetFromComparableSlice([]string{"foo", "baz"})),
+		"Set did not equal an identical set.")
+}
+
+func TestSetList(t *testing.T) {
+	foo := "foo"
+	bar := "bar"
+	baz := "baz"
+
+	s := NewSetFromComparableSlice([]string{"foo", "bar", "baz"})
+	l := s.List()
+	assert.Len(t, l, 3)
+	assert.ElementsMatch(t, l, []*string{&foo, &bar, &baz})
 }
 
 func TestIntersection(t *testing.T) {
@@ -69,6 +95,24 @@ func TestIsSubSet(t *testing.T) {
 	s2 := NewSet("", Id[string]).AddMany([]string{"foo", "bar", "baz"})
 	assert.True(t, s1.IsSubSetOf(s2), "s1 was not a subset of s2")
 	assert.False(t, s2.IsSubSetOf(s1), "s2 was a subset of s1")
+}
+
+func TestIsSuperSet(t *testing.T) {
+	s1 := NewSet("", Id[string]).AddMany([]string{"bar", "baz"})
+	s2 := NewSet("", Id[string]).AddMany([]string{"foo", "bar", "baz"})
+	assert.True(t, s2.IsSuperSetOf(s1), "s1 was not a subset of s2")
+	assert.False(t, s1.IsSuperSetOf(s2), "s2 was a subset of s1")
+}
+
+func TestSubtract(t *testing.T) {
+	s1 := NewSetFromComparableSlice([]string{"bar", "baz", "notInS2"})
+	s2 := NewSetFromComparableSlice([]string{"foo", "bar", "baz"})
+	got := s2.Subtract(s1)
+	want := NewSetFromComparableSlice([]string{"foo"})
+	if diff := cmp.Diff(got, want, got.GetTransformer()); diff != "" {
+		t.Errorf("(Set).Subtract() mismatch (-want +got):\n%s", diff)
+	}
+	assert.Equal(t, 0, s2.Subtract(s2).Len(), "Subtracting a set from itself should return an empty set")
 }
 
 func TestApply(t *testing.T) {

@@ -1,7 +1,6 @@
 package day18
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -29,21 +28,70 @@ func getAllSides(p utils.V3) []side {
 	return rv
 }
 
-func PartA(filename string) int {
-	rv := 0
+func getBlocks(filename string) utils.Set[utils.V3, utils.V3] {
 	data := string(utils.Must(os.ReadFile, filename))
 	blocks := []utils.V3{}
 	for _, l := range utils.SplitLines(data) {
 		coords := utils.Map(utils.Atoi, strings.Split(l, ","))
-		blocks = append(blocks, utils.V3{coords[0], coords[1], coords[3]})
+		blocks = append(blocks, utils.V3{coords[0], coords[1], coords[2]})
 	}
-	fmt.Println(data)
-	return rv
+	return utils.NewSetFromComparableSlice(blocks)
+}
+
+func PartA(filename string) int {
+	blocks := getBlocks(filename)
+	sides := utils.NewSet(side{}, utils.Id[side])
+	duplicateSides := utils.NewSet(side{}, utils.Id[side])
+	blocks.Apply(func(b *utils.V3) {
+		for _, s := range getAllSides(*b) {
+			if sides.Contains(s) {
+				duplicateSides.Add(s)
+			}
+			sides.Add(s)
+		}
+	})
+
+	return sides.Len() - duplicateSides.Len()
 }
 
 func PartB(filename string) int {
-	rv := 0
-	data := string(utils.Must(os.ReadFile, filename))
-	fmt.Println(data)
-	return rv
+	blocks := getBlocks(filename)
+	sides := utils.NewSet(side{}, utils.Id[side])
+	blocks.Apply(func(b *utils.V3) {
+		sides.AddMany(getAllSides(*b))
+	})
+
+	minCoord := 0
+	maxCoord := 0
+	blocks.Apply(func(b *utils.V3) {
+		minCoord = utils.Min(minCoord, b[0:3]...)
+		maxCoord = utils.Max(maxCoord, b[0:3]...)
+	})
+
+	AlreadyVisited := utils.NewSet(utils.V3{}, utils.Id[utils.V3])
+	ToVisit := utils.NewSet(utils.V3{}, utils.Id[utils.V3])
+	VisibleSides := utils.NewSet(side{}, utils.Id[side])
+
+	minCoord -= 1
+	maxCoord += 1
+
+	ToVisit.Add(utils.V3{minCoord, minCoord, minCoord})
+
+	for ToVisit.Len() > 0 {
+		p, _ := ToVisit.Pop()
+
+		AlreadyVisited.Add(p)
+
+		for _, d := range utils.Six3DAdjecencies {
+			pp := p.AddV(d)
+			if !AlreadyVisited.Contains(pp) && !blocks.Contains(pp) {
+				if utils.All(utils.Op(">=", minCoord), pp[:3]) &&
+					utils.All(utils.Op("<=", maxCoord), pp[:3]) {
+					ToVisit.Add(pp)
+				}
+			}
+		}
+		VisibleSides.AddMany(getAllSides(p))
+	}
+	return VisibleSides.Intersection(sides).Len()
 }

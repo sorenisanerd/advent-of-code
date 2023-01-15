@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"golang.org/x/exp/constraints"
 )
 
 // Extract all numbers from a string.
@@ -70,20 +72,33 @@ func ChunkByTotalCount[T any](s []T, count int) [][]T {
 	return rv
 }
 
+func Min[T constraints.Ordered](e0 T, en ...T) T {
+	rv := e0
+	for _, ei := range en {
+		if ei < rv {
+			rv = ei
+		}
+	}
+	return rv
+}
+
+func Max[T constraints.Ordered](e0 T, en ...T) T {
+	rv := e0
+	for _, ei := range en {
+		if ei > rv {
+			rv = ei
+		}
+	}
+	return rv
+}
+
 // MaxInts returns the maximum of a list of ints.
 // If the list is empty, it panics.
 func MaxInts(ints ...int) int {
 	if len(ints) == 0 {
 		panic("no ints")
 	}
-
-	rv := ints[0]
-	for _, i := range ints[1:] {
-		if i > rv {
-			rv = i
-		}
-	}
-	return rv
+	return Max(ints[0], ints[1:]...)
 }
 
 // MinInts returns the minimum of a list of ints.
@@ -92,14 +107,7 @@ func MinInts(ints ...int) int {
 	if len(ints) == 0 {
 		panic("no ints")
 	}
-
-	rv := ints[0]
-	for _, i := range ints[1:] {
-		if i < rv {
-			rv = i
-		}
-	}
-	return rv
+	return Min(ints[0], ints[1:]...)
 }
 
 func Bound(i, low, high int) int {

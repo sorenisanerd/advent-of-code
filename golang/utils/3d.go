@@ -3,6 +3,14 @@ package utils
 type V3 [3]int
 
 var All3DAdjecencies = []V3{}
+var Six3DAdjecencies = []V3{
+	{1, 0, 0},
+	{0, 1, 0},
+	{0, 0, 1},
+	{-1, 0, 0},
+	{0, -1, 0},
+	{0, 0, -1},
+}
 
 func init() {
 	for x := -1; x <= 1; x++ {

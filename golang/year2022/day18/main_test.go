@@ -7,17 +7,17 @@ import (
 	"github.com/sorenisanerd/adventofcode/utils"
 )
 
-func testDay18(t *testing.T) {
+func TestDay18(t *testing.T) {
 	tests := []struct {
 		name     string
 		f        func(string) int
 		filename string
 		want     int
 	}{
-		{"A:Sample", PartA, "sample.txt", 0},
-		{"A:Input", PartA, "input.txt", 0},
-		{"B:Sample", PartB, "sample.txt", 0},
-		{"B:Input", PartB, "input.txt", 0},
+		{"A:Sample", PartA, "sample.txt", 64},
+		{"A:Input", PartA, "input.txt", 4460},
+		{"B:Sample", PartB, "sample.txt", 58},
+		{"B:Input", PartB, "input.txt", 2498},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

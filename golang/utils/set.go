@@ -22,7 +22,7 @@ func NewSet[T any, MapKey comparable](t T, getKey func(T) MapKey) Set[T, MapKey]
 }
 
 func NewSetFromComparableSlice[T comparable](l []T) Set[T, T] {
-	// If m is a map[whatever]T, then m[whatever] return's the
+	// If m is a map[whatever]T, then m[any unset key] returns the
 	// nil value of T.
 	rv := NewSet(make(map[int]T)[4], Id[T])
 	for _, item := range l {
@@ -96,11 +96,34 @@ func (s Set[T, U]) Union(other Set[T, U]) Set[T, U] {
 	return rv
 }
 
+// Union returns a new set containing every element
+// that exists in either set.
+func (s Set[T, U]) Subtract(other Set[T, U]) Set[T, U] {
+	var x T
+	rv := NewSet(x, s.getKey)
+	s.Apply(func(x *T) {
+		if !other.Contains(*x) {
+			rv.Add(*x)
+		}
+	})
+	return rv
+}
+
 // Equal returns true if `other` is of the same type and same
 // length, and if `s` is a subset of `other`
 // same length, and a subset this Set.
 func (s Set[T, U]) Equal(other Set[T, U]) bool {
 	return s.Len() == other.Len() && s.IsSubSetOf(other)
+}
+
+func (s Set[T, U]) List() []*T {
+	rv := make([]*T, len(s.dict))
+	i := 0
+	for k := range s.dict {
+		rv[i] = s.dict[k]
+		i++
+	}
+	return rv
 }
 
 // IsSubSetOf returns true if every element in `s`
@@ -114,11 +137,24 @@ func (s Set[T, U]) IsSubSetOf(other Set[T, U]) bool {
 	return true
 }
 
+// IsSuperSetOf returns true if every element in `other`
+// is also in `s`. This is exactly equivalent of calling
+// `other.IsSubSetOf(s)`, but it's here for symmetry.
+func (s Set[T, U]) IsSuperSetOf(other Set[T, U]) bool {
+	return other.IsSubSetOf(s)
+}
+
 // Len returns the number of elements in the set.
 func (s Set[T, U]) Len() int {
 	return len(s.dict)
 }
 
+// Apply calls a function on every element in the set.
+// The function is called with a pointer to the element.
+// Deleting elements from the set while iterating over it
+// is safe. If an element is deleted, it will not visited.
+// If it has already been visited... well, this ain't no
+// time machine, so you'll need to handle that somehow.
 func (s Set[T, U]) Apply(f func(*T)) {
 	for k := range s.dict {
 		f(s.dict[k])
