@@ -1,1 +1,6 @@
 **/__pycache__
+golang/**/*.prof
+python/benchmark.json python/benchmark.json.saved
+golang/day16.test
+python/benchmark.*
+.vscode/launch.json

@@ -9,17 +9,18 @@ day="$2"
 paddedDay="$(printf %02d $2)"
 
 echo "Starting day $year/12/$day"
-pydir=python/aoc/year$year/day$day
-godir=golang/year$year/day$day
+pydir=python/aoc/year$year/day$paddedDay
+
 if [ -d $pydir ]; then
     echo "Directory $pydir already exists"
 else
     mkdir -p $pydir
     cp -r python/_template/*.py $pydir
-    sed -e "s#ayXX#ay${paddedDay}#" -i '' $godir/*
+    sed -e "s#ayXX#ay${paddedDay}#" -i '' $pydir/*
     git add $pydir
 fi
 
+godir=golang/year$year/day$paddedDay
 if [ -d $godir ]; then
     echo "Directory $godir already exists"
 else
