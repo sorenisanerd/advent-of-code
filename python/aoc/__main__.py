@@ -21,8 +21,11 @@ def run(args, years=years, days=days):
         else:
             parts = ['B']
 
+    benchmarkData = {}
     for year in years:
+        benchmarkData[year] = {}
         for day in days:
+            benchmarkData[year][day] = {}
             dayModule = get_year_day_module(year, day)
 
             if args.input is not None:
@@ -32,7 +35,14 @@ def run(args, years=years, days=days):
 
             for part in parts:
                 if hasattr(dayModule, f"part{part}"):
-                    rv = getattr(dayModule, f"part{part}")(filename=inputFile)
+                    if args.bench:
+                        import timeit
+                        ti = timeit.Timer(lambda: getattr(dayModule, f"part{part}")(filename=inputFile))
+                        numCalls, totTime = ti.autorange()
+                        benchmarkData[year][day][f'part{part}'] = {'time_ms': 1000*totTime, 'calls': numCalls}
+                        rv = '%05fms (averaged over %d runs)' % (1000*totTime / numCalls, numCalls)
+                    else:
+                        rv = getattr(dayModule, f"part{part}")(filename=inputFile)
                 else:
                     rv = 'Not implemented'
 
@@ -44,6 +54,9 @@ def run(args, years=years, days=days):
                     sep = ' '
 
                 print(s, rv, sep=sep)
+                if args.bench:
+                    import json
+                    json.dump(benchmarkData, open('benchmark.json', 'w'), indent=2)
 
 def test(args):
     import unittest
@@ -85,6 +98,7 @@ def main(argv):
                            help="Part of the challenge")
 
     runParser.add_argument("-i", "--input", type=str, help="Input file")
+    runParser.add_argument("-b", "--bench", action='store_true', help="Run code in benchmark mode")
 
     runParser.set_defaults(func=run)
     testParser.set_defaults(func=test)

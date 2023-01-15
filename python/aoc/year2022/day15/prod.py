@@ -68,7 +68,7 @@ def partB(filename: str, minx=0, miny=0, maxx=4_000_000, maxy=4_000_000) -> int:
         for p in followEdge(s, b):
             if minx <= p.x <= maxx and miny <= p.y <= maxy:
                 if not isCovered(p):
-                    return p.x*4000000+y
+                    return p.x*4000000+p.y
 
     assert False
 

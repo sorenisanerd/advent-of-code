@@ -4,7 +4,7 @@ def partA(filename: str) -> int:
     M = Map(getLines(filename), mapFunc=int)
 
     def checkDirection(p, d, M=M):
-        val:int = M[p]
+        val = M[p]
         while True:
             p += d
             new_value = M[p]

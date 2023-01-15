@@ -9,6 +9,7 @@ class DayTestCase(unittest.TestCase):
         self.assertEqual(partA(get_data_file_path('input.txt')), 5340)
 
     def testIsInOrder(self):
+        # myCmp() -> -1 means they are correct order
         self.assertEqual(myCmp([1,1,3,1,1], [1,1,5,1,1]), -1)
         self.assertEqual(myCmp([[1],[2,3,4]], [[1],4]), -1)
         self.assertEqual(myCmp([9], [[8,7,6]]), 1)
@@ -17,7 +18,6 @@ class DayTestCase(unittest.TestCase):
         self.assertEqual(myCmp([], [3]),  -1)
         self.assertEqual(myCmp([[[]]], [[]]), 1)
         self.assertEqual(myCmp([1,[2,[3,[4,[5,6,7]]]],8,9], [1,[2,[3,[4,[5,6,0]]]],8,9]),  1)
-
 
     def testPartB(self):
         self.assertEqual(partB(get_data_file_path('sample.txt')), 140)

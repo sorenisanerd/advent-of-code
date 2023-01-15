@@ -9,9 +9,9 @@ class DayTestCase(unittest.TestCase):
         self.assertEqual(partA(get_data_file_path('input.txt')), 6642)
 
     def testTrack(self):
-        self.assertEquals(track(V(0,0), V(0,0)), V(0,0))
-        self.assertEquals(track(V(2,0), V(0,0)), V(1,0))
-        self.assertEquals(track(V(0,2), V(0,0)), V(0,1))
+        self.assertEqual(track(V(0,0), V(0,0)), V(0,0))
+        self.assertEqual(track(V(2,0), V(0,0)), V(1,0))
+        self.assertEqual(track(V(0,2), V(0,0)), V(0,1))
 
     def testPartB(self):
         self.assertEqual(partB(get_data_file_path('sample.txt')), 1)

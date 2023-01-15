@@ -1,3 +1,5 @@
+from aoc.utils import *
+
 directions = dict()
 directions['N'] = (0, -1)
 directions['NE'] = (1, -1)

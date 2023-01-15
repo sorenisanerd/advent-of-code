@@ -26,54 +26,6 @@ class UtilsTestCase(unittest.TestCase):
         # a == b -> 0
         self.assertEqual(cmp(1, 1), 0)
 
-    def testMD(self):
-        self.assertEqual(MD(V(0,0), V(0, 0)), 0)
-        self.assertEqual(MD(V(50,40), V(50, 40)), 0)
-        self.assertEqual(MD(V(0,0), V(1, 1)), 2)
-        self.assertEqual(MD(V(0,0), V(1, 10)), 11)
-        self.assertEqual(MD(V(10,5), V(87, 4)), 78)
-
-class VectorTestCase(unittest.TestCase):
-    def assertArraysEqual(self, a, b):
-        assert all(a == b)
-
-    def assertArraysNotEqual(self, a, b):
-        assert not all(a == b)
-
-    def testConstructor(self):
-        V(1)
-        V(1, 2)
-        V(1, 2, 3)
-
-    def testEquality(self):
-        self.assertArraysEqual(V(1), V(1))
-        self.assertArraysEqual(V(1, 2), V(1, 2))
-        self.assertArraysEqual(V(1, 2, 3), V(1, 2, 3))
-
-        self.assertArraysNotEqual(V(1), V(2))
-        self.assertArraysNotEqual(V(1, 2), V(1, 3))
-        self.assertArraysNotEqual(V(1, 2, 3), V(1, 2, 4))
-
-    def testMultiply(self):
-        self.assertArraysEqual(V(1) * 2, V(2))
-        self.assertArraysEqual(V(1, 2) * 2, V(2, 4))
-        self.assertArraysEqual(V(1, 2, 3) * 2, V(2, 4, 6))
-
-    def testAdd(self):
-        self.assertArraysEqual(V(1) + 2, V(3))
-        self.assertArraysEqual(V(1, 2) + 2, V(3, 4))
-        self.assertArraysEqual(V(1, 2, 3) + 2, V(3, 4, 5))
-
-        self.assertArraysEqual(V(1) + V(2), V(3))
-        self.assertArraysEqual(V(1, 2) + V(2, 3), V(3, 5))
-        self.assertArraysEqual(V(1, 2, 3) + V(2, 3, 4), V(3, 5, 7))
-
-    def testSlice(self):
-        self.assertEqual(V(1, 2, 3)[0], 1)
-        self.assertEqual(V(1, 2, 3)[1], 2)
-        self.assertEqual(V(1, 2, 3)[2], 3)
-        self.assertArraysEqual(V(1, 2, 3)[0:2], V(1, 2))
-
 class MapTestCase(unittest.TestCase):
     classUnderTest = Map
     def testConstructor(self):
@@ -101,6 +53,10 @@ class MapTestCase(unittest.TestCase):
 
 class SparseMapTestCase(MapTestCase):
     classUnderTest = SparseMap
+
+    def testConstructor(self):
+        self.classUnderTest('')
+        self.classUnderTest([' ', ' '])
 
     def testGet(self):
         m = self.classUnderTest([' ', 'M'])

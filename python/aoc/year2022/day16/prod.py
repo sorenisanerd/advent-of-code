@@ -1,17 +1,5 @@
 import re
-
-
-# Takes a list and returns a generator returning
-# 2-tuples like so:
-# choose_one([1,2,3]):
-# (1, [2,3])
-# (2, [1,3])
-# (3, [1,2])
-# So first element of the tuple iterates over the list
-# and the second element is the list without the first element
-def choose_one(l):
-    for i in range(len(l)):
-        yield (l[i], l[:i] + l[i+1:])
+from aoc.utils import *
 
 
 def floyd_warshall(V):

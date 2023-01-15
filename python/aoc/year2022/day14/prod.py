@@ -1,13 +1,14 @@
 from aoc.utils import *
+from aoc.utils.vectors import *
 
 def pour(M):
-    p = V(500,0)
+    p = V2(500,0)
     while True:
         if p.y > 1000:
             return None
 
         moved = False
-        for d in [V(0, 1), V(-1, 1), V(1, 1)]:
+        for d in [V2(0, 1), V2(-1, 1), V2(1, 1)]:
             v = M[p+d]
             if v == ' ':
                 p += d
@@ -33,7 +34,7 @@ def partA(filename: str) -> int:
 def getCavemap(lines):
     walls = []
     for l in lines:
-        points = list(map(tuple, chunkBySize(ints(l), 2)))
+        points = list(map(lambda x:V2(*x), chunkBySize(ints(l), 2)))
         walls += [list(points)]
 
     minx, miny = 0, 0
@@ -61,12 +62,12 @@ def partB(filename: str) -> int:
 
     # Add the floor
     for x in range(0,1000):
-        cavemap[(x, maxy+2)] = '#'
+        cavemap[V2(x, maxy+2)] = '#'
 
     i = 1
     while True:
         p = pour(cavemap)
         # If it settles right where it comes out, we're done
-        if p == (500,0):
+        if p == V2(500,0):
             return i
         i += 1
