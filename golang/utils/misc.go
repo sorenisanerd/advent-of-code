@@ -224,17 +224,25 @@ func ChooseOneCallBack[T any](l []T, f func(T, []T)) {
 func ChooseOneGenerator[T any](l []T) <-chan ChooseOneTuple[T] {
 	ch := make(chan ChooseOneTuple[T])
 	go func(l []T, ch chan ChooseOneTuple[T]) {
-		var cdr []T
-		for i := 0; i < len(l); i++ {
-			car := l[i]
-			cdr = make([]T, len(l)-1)
-			for j := 0; j < i; j++ {
-				cdr[j] = l[j]
+		// We have two of them, so once we return one,
+		// we construct the next one, ready for consumption
+		// We can't just use a single one, since it would get
+		// overwritten on the next iteration which happens immediately
+		// after consumption and before consumption of the next.
+		if len(l) > 0 {
+			cdr := make([]T, len(l)-1)
+			otherCdr := make([]T, len(l)-1)
+			for i := 0; i < len(l); i++ {
+				car := l[i]
+				for j := 0; j < i; j++ {
+					cdr[j] = l[j]
+				}
+				for j := i; j < len(l)-1; j++ {
+					cdr[j] = l[j+1]
+				}
+				ch <- ChooseOneTuple[T]{car, cdr}
+				cdr, otherCdr = otherCdr, cdr
 			}
-			for j := i; j < len(l)-1; j++ {
-				cdr[j] = l[j+1]
-			}
-			ch <- ChooseOneTuple[T]{car, cdr}
 		}
 		close(ch)
 	}(l, ch)

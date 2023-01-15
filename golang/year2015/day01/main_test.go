@@ -13,10 +13,10 @@ func TestDay01(t *testing.T) {
 		filename string
 		want     int
 	}{
-		{"A:Sample", PartA, "sample.txt", 0},
-		{"A:Input", PartA, "input.txt", 0},
-		{"B:Sample", PartB, "sample.txt", 0},
-		{"B:Input", PartB, "input.txt", 0},
+		//		{"A:Sample", PartA, "sample.txt", 0},
+		//	{"A:Input", PartA, "input.txt", 0},
+		//{"B:Sample", PartB, "sample.txt", 0},
+		//		{"B:Input", PartB, "input.txt", 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

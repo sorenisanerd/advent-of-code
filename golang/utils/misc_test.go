@@ -7,8 +7,18 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 )
+
+var hundredInts []int
+
+func init() {
+	hundredInts = make([]int, 100)
+	for i := 0; i < 100; i++ {
+		hundredInts[i] = i
+	}
+}
 
 func f1(x int) (int, error) {
 	if x == 5 {
@@ -87,10 +97,13 @@ func TestChooseOneGenerator(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			l := []ChooseOneTuple[int]{}
 			for t := range ChooseOneGenerator(tt.input) {
-				l = append(l, t)
+				cp := make([]int, len(t.Rest))
+				copy(cp, t.Rest) // This is going to come back to bite me (2023-01-14)
+				l = append(l, ChooseOneTuple[int]{t.Val, cp})
 			}
-			if got := l; !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ChooseOne() = %v, want %v", got, tt.want)
+
+			if diff := cmp.Diff(tt.want, l); diff != "" {
+				t.Errorf("ChooseOne() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -104,6 +117,36 @@ func TestChooseOne(t *testing.T) {
 			if got := l; !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ChooseOne() = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+var x int
+var y []int
+
+func BenchmarkChooseOne(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for _, t := range ChooseOne(hundredInts) {
+			x = t.Val
+			y = t.Rest
+		}
+	}
+}
+
+func BenchmarkChooseOneGenerator(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for t := range ChooseOneGenerator(hundredInts) {
+			x = t.Val
+			y = t.Rest
+		}
+	}
+}
+
+func BenchmarkChooseOneCallback(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		ChooseOneCallBack(hundredInts, func(car int, cdr []int) {
+			x = car
+			y = cdr
 		})
 	}
 }
@@ -387,4 +430,25 @@ func TestAll(t *testing.T) {
 	assert.False(t, All(func(a int) bool { return a < 10 }, l2))
 	assert.False(t, All(func(a string) bool { return len(a) < 2 }, l3))
 	assert.True(t, All(func(a string) bool { return len(a) < 3 }, l3))
+}
+
+func Test_f1(t *testing.T) {
+	type args struct {
+		x int
+	}
+	tests := []struct {
+		name      string
+		args      args
+		want      int
+		assertion assert.ErrorAssertionFunc
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := f1(tt.args.x)
+			tt.assertion(t, err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
