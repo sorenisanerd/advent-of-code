@@ -1,7 +1,7 @@
 package utils
 
 // These are n-dimensional vectors. They are much slower than
-// their 2D counterparts, so use those if you can.
+// their 2D or 3D counterparts, so use those if you can.
 type V []int
 
 func (v V) AddInt(i int) V {
