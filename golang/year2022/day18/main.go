@@ -85,8 +85,8 @@ func PartB(filename string) int {
 		for _, d := range utils.Six3DAdjecencies {
 			pp := p.AddV(d)
 			if !AlreadyVisited.Contains(pp) && !blocks.Contains(pp) {
-				if utils.All(utils.Op(">=", minCoord), pp[:3]) &&
-					utils.All(utils.Op("<=", maxCoord), pp[:3]) {
+				if utils.All(utils.BoolOp(">=", minCoord), pp[:3]) &&
+					utils.All(utils.BoolOp("<=", maxCoord), pp[:3]) {
 					ToVisit.Add(pp)
 				}
 			}
