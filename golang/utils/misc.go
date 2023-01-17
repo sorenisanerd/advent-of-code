@@ -256,3 +256,37 @@ func ChooseOneGenerator[T any](l []T) <-chan ChooseOneTuple[T] {
 	}(l, ch)
 	return ch
 }
+
+type EnumeratedSliceItem[T any] struct {
+	Idx int
+	Val T
+}
+
+func Enumerate[T any](s []T) []EnumeratedSliceItem[T] {
+	rv := []EnumeratedSliceItem[T]{}
+	for i, v := range s {
+		rv = append(rv, EnumeratedSliceItem[T]{
+			Idx: i,
+			Val: v})
+	}
+	return rv
+}
+
+func Swap[T any](s []T, i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func Move[T any](s []T, from, to int) {
+	if from == to {
+		return
+	}
+	if from < to {
+		for i := from; i < to; i++ {
+			Swap(s, i, i+1)
+		}
+	} else {
+		for i := from; i > to; i-- {
+			Swap(s, i, i-1)
+		}
+	}
+}
