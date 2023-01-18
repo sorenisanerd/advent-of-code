@@ -1,7 +1,6 @@
 package day19
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/sorenisanerd/adventofcode/utils"
@@ -163,7 +162,6 @@ func PartA(filename string) int {
 	for _, bp := range blueprints {
 		ans := 0
 		dfs(bp, 24, newState(), &ans)
-		fmt.Println(bp.id, ans)
 		rv += bp.id * ans
 	}
 	return rv
