@@ -1,7 +1,6 @@
 package day21
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -76,15 +75,13 @@ func Newton(f func(float64) float64, x0 float64) float64 {
 	dx := 1.0
 	x := x0 + dx
 	for {
-		fmt.Println("Guessing", x)
 		newY := f(x)
 		if newY == 0 {
 			return x
 		}
 
 		dy := newY - y
-
-		dx = float64(-newY) / (float64(dy) / float64(dx))
+		dx = -newY / (dy / dx)
 		x = x + dx
 		y = newY
 	}
